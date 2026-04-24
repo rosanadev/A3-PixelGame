@@ -70,9 +70,8 @@ main {
     background-color: #261046;
     color: white;
     border-radius: 0.5rem;
-    padding: 1rem 0;
+    padding: 1rem 0.5rem;
     max-width: 100%;
-    width: 100%;
     border: none;
 }
 
