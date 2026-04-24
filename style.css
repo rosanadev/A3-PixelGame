@@ -3,6 +3,7 @@ html {
 }
 
 body {
+    font-family: 'Montserrat', sans-serif;
     padding: 0;
     margin: 0;
     display: flex;
@@ -25,7 +26,7 @@ body {
 }
 
 main {
-    background: #534AB7;
+    background-image: linear-gradient(to right, white, #534AB7);
     margin: 0;
     padding: 0;
     width: 100%;
@@ -35,19 +36,34 @@ main {
     max-width: 100%;
     max-height: 100%;
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: space-between;
     margin: 5% 15%;
     height: auto;
 }
 
+.line {
+    height: 1px;
+    width: 100%;
+    background: gray;
+    margin-top: 2rem;
+}
+
 .column {
-    width: 50%; 
-    height: 100%
+    width: 50%;
+    height: 100%;
 }
 
 .main-logo {
     max-width: 100%;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 100%;
 }
 
 .email-input {
@@ -57,6 +73,35 @@ main {
     padding: 1rem 0;
     max-width: 100%;
     width: 100%;
+    border: none;
+}
+
+.login-button {
+    background: #534AB7;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1rem 0;
+    max-width: 100%;
+    width: 100%;
+    border: none;
+}
+
+.social-login {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    max-width: 100%;
+    align-items: center;
+    gap: 1rem;
+}
+
+.social-button {
+    background: #3B2063;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1rem 0;
+    max-width: 100%;
+    width: 50%;
     border: none;
 }
 
