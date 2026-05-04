@@ -1,0 +1,82 @@
+body {
+  margin: 0;
+  line-height: normal;
+}
+
+:root {
+  /* Figma Variables */
+
+  /* Spacing */
+  --Radius-200: 8px;
+  --Space-200: 8px;
+  --Space-300: 12px;
+  --Stroke-Border: 1px;
+
+  /* Color */
+  --Backgrounds-Grouped-Tertiary-Elevated: #f2f2f7;
+  --Backgrounds-Tertiary-Elevated: #fff;
+  --Schemes-Outline-Variant: #cac4d0;
+  --Schemes-Secondary-Container: #e8def8;
+  --Schemes-Surface-Container: #f3edf7;
+
+  /* Common Style Variables */
+
+  /* Color */
+  --color-darkslateblue: #26215c;
+  --color-gray: rgba(255, 255, 255, 0.7);
+  --color-silver-100: #b7b7b7;
+  --color-silver-200: rgba(183, 183, 183, 0.2);
+  --color-slateblue-100: #534ab7;
+  --color-slateblue-200: rgba(83, 74, 183, 0.8);
+  --color-slateblue-300: rgba(83, 74, 183, 0.9);
+  --color-thistle: #baacbc;
+  --color-whitesmoke: #f5f5f5;
+  --M3-sys-light-outline-variant: #cac4d0;
+
+  /* Gap */
+  --gap-15: 15px;
+  --gap-16: 16px;
+
+  /* Padding */
+  --padding-0: 0px;
+  --padding-01: 0;
+  --padding-16: 16px;
+
+  /* BorderRadius */
+  --br-12: 12px;
+  --br-16: 16px;
+
+  /* Font */
+  --font-average: Average;
+  --font-inter: Inter;
+  --font-iosevka-charon: Iosevka Charon;
+  --font-montserrat: Montserrat;
+
+  /* FontSize */
+  --fs-16: 16px;
+  --fs-20: 20px;
+  --fs-25: 25px;
+
+  /* Shadows */
+  --M3-Elevation-Light-3:
+    0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
+  --text-shadow-1: 0px 4px 4px rgba(0, 0, 0, 0.1);
+
+  /* WidthHeights */
+  --height-16: 16px;
+  --height-19: 19px;
+  --height-24: 24px;
+  --height-28: 28px;
+  --height-38: 38px;
+  --height-323: 323px;
+  --width-16: 16px;
+  --width-19: 19px;
+  --width-24: 24px;
+  --width-28: 28px;
+  --width-48: 48px;
+
+  /* LetterSpacings */
+  --ls--0_05: -0.05;
+
+  --top-6: 6px;
+}
