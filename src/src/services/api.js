@@ -20,7 +20,6 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('pixelgame_token');
-      localStorage.removeItem('pixelgame_user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -29,70 +28,74 @@ api.interceptors.response.use(
 
 // AUTH 
 export const authService = {
-  login: (email, password) => api.post('/auth/login', { email, password }),
+  login: (email, senha) => api.post('/auth/login', { email, senha }),
   register: (data) => api.post('/auth/register', data),
-  changePassword: (data) => api.put('/auth/password', data),
+  changePassword: (data) => api.put('/auth/change-password', data),
 };
 
-// JOGOS
+// JOGOS 
 export const gameService = {
-  getAll: (params) => api.get('/games', { params }),
-  getById: (id) => api.get(`/games/${id}`),
-  create: (data) => api.post('/games', data),
-  update: (id, data) => api.put(`/games/${id}`, data),
-  remove: (id) => api.delete(`/games/${id}`),
+  getAll: (params) => api.get('/jogos', { params }),
+  getById: (id) => api.get(`/jogos/${id}`),
+  create: (data) => api.post('/jogos', data),
+  update: (id, data) => api.put(`/jogos/${id}`, data),
+  remove: (id) => api.delete(`/jogos/${id}`),
 };
 
 // CATEGORIAS 
 export const categoryService = {
-  getAll: () => api.get('/categories'),
-  getById: (id) => api.get(`/categories/${id}`),
-  create: (data) => api.post('/categories', data),
-  update: (id, data) => api.put(`/categories/${id}`, data),
-  remove: (id) => api.delete(`/categories/${id}`),
+  getAll: () => api.get('/categorias'),
+  getById: (id) => api.get(`/categorias/${id}`),
 };
 
 // EMPRESAS 
 export const companyService = {
-  getAll: () => api.get('/companies'),
-  getById: (id) => api.get(`/companies/${id}`),
-  create: (data) => api.post('/companies', data),
-  update: (id, data) => api.put(`/companies/${id}`, data),
-  remove: (id) => api.delete(`/companies/${id}`),
+  getAll: () => api.get('/empresas'),
+  getById: (id) => api.get(`/empresas/${id}`),
+  create: (data) => api.post('/empresas', data),
+  update: (id, data) => api.put(`/empresas/${id}`, data),
+  remove: (id) => api.delete(`/empresas/${id}`),
 };
 
 // CARRINHO 
 export const cartService = {
-  get: () => api.get('/cart'),
-  addItem: (gameId) => api.post('/cart/items', { gameId }),
-  removeItem: (gameId) => api.delete(`/cart/items/${gameId}`),
+  get: () => api.get('/carrinho/ativo'),
+  addItem: (jogoId) => api.post('/carrinho/add', { jogoId }),
+  removeItem: (gameId) => api.delete(`/carrinho/${gameId}`),
 };
 
 // VENDAS 
 export const orderService = {
-  checkout: (paymentData) => api.post('/sales', paymentData),
-  getHistory: () => api.get('/sales/history'),
+  checkout: () => api.post('/vendas/checkout'),
+  pay: (metodo, dados) => api.post('/vendas/pay', { metodo, dados }),
+  getHistory: () => api.get('/vendas/'),
 };
 
-// WISHLIST 
+// LISTA DE DESEJOS
 export const wishlistService = {
-  get: () => api.get('/wishlist'),
-  add: (gameId) => api.post('/wishlist', { gameId }),
-  remove: (gameId) => api.delete(`/wishlist/${gameId}`),
+  get: () => api.get('/lista-desejo'),
+  add: (jogoId) => api.post('/lista-desejo', { jogoId }),
+  remove: (jogoId) => api.delete('/lista-desejo', { data: { jogoId } }),
 };
 
-// AVALIAÇÕES 
+// AVALIAÇÕES
 export const reviewService = {
-  getByGame: (gameId) => api.get(`/games/${gameId}/reviews`),
-  create: (gameId, data) => api.post(`/games/${gameId}/reviews`, data),
+  getAll: () => api.get('/avaliacoes'),
+  getMedia: (jogoId) => api.get(`/avaliacoes/media/${jogoId}`),
+  create: (jogoId, nota, comentario) =>
+    api.post('/avaliacoes', { jogoId, nota, comentario }),
+  update: (jogoId, nota, comentario) =>
+    api.put('/avaliacoes', { jogoId, nota, comentario }),
 };
 
 // RELATÓRIOS 
 export const reportService = {
-  topSelling: () => api.get('/reports/top-selling'),
-  topSellingByCompany: () => api.get('/reports/top-selling-by-company'),
-  ranking: () => api.get('/reports/ranking'),
-  rankingByCategory: () => api.get('/reports/ranking-by-category'),
+  jogosMaisVendidos: () => api.get('/relatorios/jogos-mais-vendidos'),
+};
+
+// PÚBLICO (sem login)
+export const publicService = {
+  getJogos: () => api.get('/public/jogos'),
 };
 
 export default api;

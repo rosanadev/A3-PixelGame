@@ -11,41 +11,38 @@ export function AuthProvider({ children }) {
   // Ao montar, verifica se já tem sessão salva
   useEffect(() => {
     const token = localStorage.getItem('pixelgame_token');
-    const savedUser = localStorage.getItem('pixelgame_user');
-    if (token && savedUser) {
+
+    if (token) {
       try {
         const decoded = jwtDecode(token);
-        // Verifica se o token não expirou
         if (decoded.exp * 1000 > Date.now()) {
-          setUser(JSON.parse(savedUser));
+          // decoded já tem: { id, nome, perfil, iat, exp }
+          setUser(decoded);
         } else {
           localStorage.removeItem('pixelgame_token');
-          localStorage.removeItem('pixelgame_user');
         }
       } catch {
         localStorage.removeItem('pixelgame_token');
-        localStorage.removeItem('pixelgame_user');
       }
     }
     setLoading(false);
   }, []);
 
-  const login = useCallback(async (email, password) => {
-    const response = await authService.login(email, password);
-    const { token, user: userData } = response.data;
+  const login = useCallback(async (email, senha) => {
+    const response = await authService.login(email, senha);
+    const { token } = response.data;
+    const decoded = jwtDecode(token); // { id, nome, perfil, iat, exp }
     localStorage.setItem('pixelgame_token', token);
-    localStorage.setItem('pixelgame_user', JSON.stringify(userData));
-    setUser(userData);
-    return userData;
+    setUser(decoded);
+    return decoded;
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('pixelgame_token');
-    localStorage.removeItem('pixelgame_user');
     setUser(null);
   }, []);
 
-  const isAdmin = user?.role === 'admin' || user?.perfil === 'admin';
+  const isAdmin = user?.perfil === 'Administrador' || user?.perfil === 'admin';
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading, isAdmin }}>
@@ -54,7 +51,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Hook de conveniência
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth deve ser usado dentro de AuthProvider');
