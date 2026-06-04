@@ -1,0 +1,29 @@
+.login-page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem 2rem;
+}
+
+.login-logo { text-align: center; margin-bottom: 1.5rem; }
+.login-logo-text { font-family: var(--font-main); font-weight: 700; font-size: 2rem; }
+.login-logo-text span { color: var(--purple-primary); }
+
+.login-title { font-family: var(--font-main); font-size: 1.4rem; font-weight: 700; text-align: center; margin-bottom: 0.3rem; }
+.login-subtitle { color: var(--text-secondary); text-align: center; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
+
+.login-submit-btn { width: 100%; justify-content: center; padding: 0.75rem; font-size: 1rem; margin-top: 0.5rem; }
+
+.login-register { text-align: center; margin-top: 1.2rem; color: var(--text-muted); font-size: 0.9rem; }
+.login-register a { color: var(--purple-light); font-weight: 600; }
+.login-register a:hover { color: var(--purple-hover); }
