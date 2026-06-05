@@ -1,9 +1,111 @@
-// TODO: implementar OrderHistoryPage
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { orderService, userService } from '../services/api';
+import './Pages.css';
+
+function formatPrice(value) {
+  return `R$ ${(Number(value) || 0).toFixed(2)}`;
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const d = new Date(value);
+  return isNaN(d) ? value : d.toLocaleDateString('pt-BR');
+}
+
 export default function OrderHistoryPage() {
+  const location = useLocation();
+  const [orders, setOrders] = useState([]);
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showSuccess, setShowSuccess] = useState(!!location.state?.sucesso);
+
+  useEffect(() => {
+    Promise.all([
+      orderService.getHistory().then((r) => r.data || []).catch(() => []),
+      // 204 (sem jogos) cai no catch e vira lista vazia
+      userService.getMyGames().then((r) => r.data || []).catch(() => []),
+    ])
+      .then(([vendas, jogos]) => {
+        setOrders(Array.isArray(vendas) ? vendas : []);
+        setGames(Array.isArray(jogos) ? jogos : []);
+      })
+      .catch(() => setError('Erro ao carregar suas compras.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="page-loading"><div className="spinner" /></div>;
+  }
+
   return (
-    <div className="container" style={{padding:'3rem 1.5rem'}}>
-      <h1 style={{fontFamily:'var(--font-main)',marginBottom:'1rem'}}>OrderHistoryPage</h1>
-      <p style={{color:'var(--text-secondary)'}}>Página em construção.</p>
+    <div className="container page">
+      <header className="page-header">
+        <h1 className="page-title">Minhas Compras</h1>
+      </header>
+
+      {showSuccess && (
+        <div className="alert alert-success row-between" role="status">
+          <span>Compra realizada com sucesso! 🎉</span>
+          <button className="btn btn-ghost" onClick={() => setShowSuccess(false)} aria-label="Fechar">✕</button>
+        </div>
+      )}
+      {error && <div className="alert alert-error" role="alert">{error}</div>}
+
+      {/* Histórico de pedidos */}
+      <section className="card" aria-label="Histórico de pedidos">
+        <h2>Histórico de pedidos</h2>
+        {orders.length === 0 ? (
+          <p className="page-subtitle mt-1">Você ainda não realizou compras.</p>
+        ) : (
+          <div style={{ overflowX: 'auto' }} className="mt-1">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Data</th>
+                  <th>Itens</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((o) => (
+                  <tr key={o.id}>
+                    <td>#{o.id}</td>
+                    <td>{formatDate(o.data)}</td>
+                    <td>{o.quantidade ?? '—'}</td>
+                    <td>{formatPrice(o.valor_total ?? o.valorTotal)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* Biblioteca / chaves de ativação */}
+      <section className="card mt-1" aria-label="Minha biblioteca">
+        <h2>Minha biblioteca</h2>
+        {games.length === 0 ? (
+          <p className="page-subtitle mt-1">Nenhum jogo adquirido ainda.</p>
+        ) : (
+          <div className="item-list mt-1">
+            {games.map((g, idx) => (
+              <div className="item-row" key={g.jogo?.id ?? idx} style={{ padding: '0.5rem 0' }}>
+                <div className="item-thumb" aria-hidden="true">🎮</div>
+                <div className="item-info">
+                  <div className="item-title">{g.jogo?.nome || 'Jogo'}</div>
+                  <div className="item-meta">
+                    Chave:{' '}
+                    <code>{g.chaveAtivacao || 'pendente'}</code>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
