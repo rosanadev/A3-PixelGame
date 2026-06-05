@@ -64,11 +64,16 @@ export const cartService = {
   removeItem: (gameId) => api.delete(`/carrinho/${gameId}`),
 };
 
-// VENDAS 
+// VENDAS
 export const orderService = {
   checkout: () => api.post('/vendas/checkout'),
   pay: (metodo, dados) => api.post('/vendas/pay', { metodo, dados }),
   getHistory: () => api.get('/vendas/'),
+};
+
+// USUÁRIO (jogos comprados / chaves de ativação)
+export const userService = {
+  getMyGames: () => api.get('/usuarios/my/games'),
 };
 
 // LISTA DE DESEJOS
