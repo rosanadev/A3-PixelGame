@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logoVertical from '../img/login/logo-vertical.png';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -10,7 +11,7 @@ export default function LoginPage() {
   const from = location.state?.from?.pathname || '/';
 
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,10 +20,13 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, senha);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error || 'E-mail ou senha inválidos.');
+      const msg = err.response?.data?.message;
+      if (err.response?.status === 404) setError('Usuário não encontrado.');
+      else if (err.response?.status === 401) setError('Senha incorreta.');
+      else setError(msg || 'Erro ao tentar entrar. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -31,13 +35,13 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card card">
-        {/* Logo */}
-        <div className="login-logo" aria-hidden="true">
-          <span className="login-logo-text">Pixel<span>Game</span></span>
+
+        <div className="login-logo">
+          <img src={logoVertical} alt="PixelGame" className="login-logo-img" />
         </div>
 
         <h1 className="login-title">Bem-vindo de volta!</h1>
-        <p className="login-subtitle">Entre na sua conta para continuar</p>
+        <p className="login-subtitle">Conecte-se com seu e-mail</p>
 
         {error && (
           <div className="alert alert-error" role="alert" aria-live="assertive">
@@ -62,14 +66,14 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Senha</label>
+            <label htmlFor="senha">Senha</label>
             <input
-              id="password"
+              id="senha"
               type="password"
               className="input-field"
               placeholder="Sua senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
               required
               autoComplete="current-password"
               aria-required="true"
@@ -82,7 +86,10 @@ export default function LoginPage() {
             disabled={loading}
             aria-busy={loading}
           >
-            {loading ? <><span className="spinner" aria-hidden="true" /> Entrando...</> : 'Entrar'}
+            {loading
+              ? <><span className="spinner" aria-hidden="true" /> Entrando...</>
+              : 'Entrar'
+            }
           </button>
         </form>
 
