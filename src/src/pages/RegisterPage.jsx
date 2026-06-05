@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
+import logoVertical from '../img/login/logo-vertical.png';
+import logoHorizontal from '../img/login/logo-horizontal.png';
 import './LoginPage.css';
 import './RegisterPage.css';
 
@@ -60,122 +62,168 @@ export default function RegisterPage() {
 
   return (
     <div className="login-page">
-      <div className="login-card card register-card">
-        <div className="login-logo" aria-hidden="true">
-          <span className="login-logo-text">Pixel<span>Game</span></span>
-        </div>
 
-        <h1 className="login-title">Criar conta</h1>
-        <p className="login-subtitle">Preencha os dados para se cadastrar</p>
-
-        {error && (
-          <div className="alert alert-error" role="alert" aria-live="assertive">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="alert alert-success" role="status" aria-live="polite">
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} noValidate aria-label="Formulário de cadastro">
-          <div className="form-group">
-            <label htmlFor="nome">Nome completo <span aria-hidden="true">*</span></label>
+      <header className="login-header">
+        <nav className="login-nav">
+          <Link to="/" aria-label="PixelGame - Página inicial">
+            <img src={logoHorizontal} alt="PixelGame" className="login-nav-logo" />
+          </Link>
+          <form className="login-nav-search" role="search">
+            <label htmlFor="nav-search" className="sr-only">Pesquisar jogo</label>
             <input
-              id="nome"
-              name="nome"
+              id="nav-search"
               type="text"
-              className="input-field"
-              placeholder="Seu nome"
-              value={form.nome}
-              onChange={handleChange}
-              required
-              autoComplete="name"
-              aria-required="true"
+              placeholder="Pesquisar jogo..."
+              className="login-search-bar"
+              aria-label="Pesquisar jogo"
             />
+          </form>
+          <div className="login-nav-actions">
+            <Link to="/login" className="login-btn-purple">Entrar</Link>
+          </div>
+        </nav>
+      </header>
+
+      <main className="login-main">
+        <div className="login-container">
+
+          <div className="login-col-logo">
+            <img src={logoVertical} alt="PixelGame logo" className="login-main-logo" />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="reg-email">E-mail <span aria-hidden="true">*</span></label>
-            <input
-              id="reg-email"
-              name="email"
-              type="email"
-              className="input-field"
-              placeholder="exemplo@email.com"
-              value={form.email}
-              onChange={handleChange}
-              required
-              autoComplete="email"
-              aria-required="true"
-            />
+          <div className="login-col-form">
+
+            {error && (
+              <div className="login-alert" role="alert" aria-live="assertive">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="login-alert login-alert-success" role="status" aria-live="polite">
+                {success}
+              </div>
+            )}
+
+            <form
+              className="login-form"
+              onSubmit={handleSubmit}
+              noValidate
+              aria-label="Formulário de cadastro"
+            >
+              <h1 className="login-greeting">Criar conta</h1>
+              <h2 className="login-subtitle">Preencha os dados para se cadastrar</h2>
+
+              <div className="login-field">
+                <label htmlFor="nome" className="register-label">
+                  Nome completo <span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  className="login-email-input"
+                  placeholder="Seu nome"
+                  value={form.nome}
+                  onChange={handleChange}
+                  required
+                  autoComplete="name"
+                  aria-required="true"
+                />
+              </div>
+
+              <div className="login-field">
+                <label htmlFor="reg-email" className="register-label">
+                  E-mail <span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="reg-email"
+                  name="email"
+                  type="email"
+                  className="login-email-input"
+                  placeholder="exemplo@email.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  autoComplete="email"
+                  aria-required="true"
+                />
+              </div>
+
+              <div className="login-field">
+                <label htmlFor="dataNascimento" className="register-label">
+                  Data de nascimento
+                </label>
+                <input
+                  id="dataNascimento"
+                  name="dataNascimento"
+                  type="date"
+                  className="login-email-input"
+                  value={form.dataNascimento}
+                  onChange={handleChange}
+                  aria-describedby="date-hint"
+                />
+                <small id="date-hint" className="register-hint">Opcional</small>
+              </div>
+
+              <div className="register-row">
+                <div className="login-field">
+                  <label htmlFor="reg-senha" className="register-label">
+                    Senha <span aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="reg-senha"
+                    name="senha"
+                    type="password"
+                    className="login-email-input"
+                    placeholder="Mínimo 6 caracteres"
+                    value={form.senha}
+                    onChange={handleChange}
+                    required
+                    autoComplete="new-password"
+                    aria-required="true"
+                  />
+                </div>
+
+                <div className="login-field">
+                  <label htmlFor="confirmarSenha" className="register-label">
+                    Confirmar senha <span aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="confirmarSenha"
+                    name="confirmarSenha"
+                    type="password"
+                    className="login-email-input"
+                    placeholder="Repita a senha"
+                    value={form.confirmarSenha}
+                    onChange={handleChange}
+                    required
+                    autoComplete="new-password"
+                    aria-required="true"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="login-button"
+                disabled={loading}
+                aria-busy={loading}
+              >
+                {loading
+                  ? <><span className="login-spinner" aria-hidden="true" /> Criando conta...</>
+                  : 'Criar conta'
+                }
+              </button>
+            </form>
+
+            <p className="login-register-link">
+              Já tem conta?{' '}
+              <Link to="/login">Entrar</Link>
+            </p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="dataNascimento">Data de nascimento</label>
-            <input
-              id="dataNascimento"
-              name="dataNascimento"
-              type="date"
-              className="input-field"
-              value={form.dataNascimento}
-              onChange={handleChange}
-              aria-describedby="date-hint"
-            />
-            <small id="date-hint" className="form-hint">Opcional</small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="reg-senha">Senha <span aria-hidden="true">*</span></label>
-            <input
-              id="reg-senha"
-              name="senha"
-              type="password"
-              className="input-field"
-              placeholder="Mínimo 6 caracteres"
-              value={form.senha}
-              onChange={handleChange}
-              required
-              autoComplete="new-password"
-              aria-required="true"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmarSenha">Confirmar senha <span aria-hidden="true">*</span></label>
-            <input
-              id="confirmarSenha"
-              name="confirmarSenha"
-              type="password"
-              className="input-field"
-              placeholder="Repita a senha"
-              value={form.confirmarSenha}
-              onChange={handleChange}
-              required
-              autoComplete="new-password"
-              aria-required="true"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary login-submit-btn"
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading
-              ? <><span className="spinner" aria-hidden="true" /> Criando conta...</>
-              : 'Criar conta'
-            }
-          </button>
-        </form>
-
-        <p className="login-register">
-          Já tem conta?{' '}
-          <Link to="/login">Entrar</Link>
-        </p>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

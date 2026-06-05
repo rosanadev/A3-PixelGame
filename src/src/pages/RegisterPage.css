@@ -1,10 +1,55 @@
-.register-card {
-  max-width: 460px;
+/* Ajustes específicos do cadastro. Reutiliza o layout/tema de LoginPage.css
+   (header, duas colunas, .login-email-input, .login-button, etc.) e apenas
+   acrescenta o que o formulário de cadastro precisa a mais. */
+
+/* O cadastro tem mais campos, então o formulário recebe um respiro menor. */
+.login-col-form .login-form {
+  gap: 0.85rem;
 }
 
-.form-hint {
-  color: var(--text-muted);
-  font-size: 0.78rem;
+/* Rótulos visíveis acima de cada campo (tema claro do login). */
+.register-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #261046;
+  margin-bottom: 0.35rem;
+}
+.register-label span {
+  color: #534AB7;
+}
+
+.register-hint {
   margin-top: 0.3rem;
-  display: block;
+  font-size: 0.78rem;
+  color: #6b5b85;
+}
+
+/* Senha e confirmação lado a lado. */
+.register-row {
+  display: flex;
+  gap: 1rem;
+}
+.register-row .login-field {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Alerta de sucesso (variação do .login-alert de erro). */
+.login-alert-success {
+  background: rgba(46, 204, 113, 0.12);
+  border-color: #2ecc71;
+  color: #1e8449;
+}
+
+/* O input de data usa fundo escuro (.login-email-input); deixa o ícone do
+   seletor de calendário visível em branco. */
+.login-email-input[type='date'] {
+  color-scheme: dark;
+}
+
+@media (max-width: 768px) {
+  .register-row {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
 }
