@@ -1,10 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import CartIcon from '../icons/CartIcon';
 import './Navbar.css';
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
+  const { count } = useCart();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -54,8 +57,14 @@ export default function Navbar() {
               <Link to="/wishlist" className="navbar__icon-btn" aria-label="Lista de desejos" title="Lista de desejos">
                 ♡
               </Link>
-              <Link to="/cart" className="navbar__icon-btn" aria-label="Carrinho de compras" title="Carrinho">
-                🛒
+              <Link
+                to="/cart"
+                className="navbar__icon-btn navbar__cart"
+                aria-label={count > 0 ? 'Carrinho de compras (com itens)' : 'Carrinho de compras'}
+                title="Carrinho"
+              >
+                <CartIcon size={22} />
+                {count > 0 && <span className="navbar__cart-badge" aria-hidden="true" />}
               </Link>
 
               {/* Menu do usuário */}
@@ -76,7 +85,6 @@ export default function Navbar() {
                 {menuOpen && (
                   <ul className="navbar__dropdown" role="menu">
                     <li role="menuitem"><Link to="/orders" onClick={() => setMenuOpen(false)}>Minhas Compras</Link></li>
-                    <li role="menuitem"><Link to="/reports" onClick={() => setMenuOpen(false)}>Relatórios</Link></li>
                     {isAdmin && (
                       <>
                         <li className="navbar__dropdown-divider" role="separator" />
@@ -84,6 +92,7 @@ export default function Navbar() {
                         <li role="menuitem"><Link to="/admin/games" onClick={() => setMenuOpen(false)}>Gerenciar Jogos</Link></li>
                         <li role="menuitem"><Link to="/admin/categories" onClick={() => setMenuOpen(false)}>Categorias</Link></li>
                         <li role="menuitem"><Link to="/admin/companies" onClick={() => setMenuOpen(false)}>Empresas</Link></li>
+                        <li role="menuitem"><Link to="/reports" onClick={() => setMenuOpen(false)}>Relatórios</Link></li>
                       </>
                     )}
                     <li className="navbar__dropdown-divider" role="separator" />

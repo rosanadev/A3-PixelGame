@@ -64,6 +64,9 @@
 }
 
 .navbar__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   font-size: 1.3rem;
@@ -74,6 +77,18 @@
   line-height: 1;
 }
 .navbar__icon-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+
+.navbar__cart { position: relative; }
+.navbar__cart-badge {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--purple-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--bg-primary, #11111a);
+}
 
 /* User menu */
 .navbar__user { position: relative; }
