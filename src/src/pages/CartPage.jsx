@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cartService, gameService } from '../services/api';
+import { useCart } from '../context/CartContext';
 import './Pages.css';
 
 function formatPrice(value) {
@@ -9,6 +10,7 @@ function formatPrice(value) {
 
 export default function CartPage() {
   const navigate = useNavigate();
+  const { refresh: refreshCart } = useCart();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,6 +50,7 @@ export default function CartPage() {
     try {
       await cartService.removeItem(fkJogo);
       setItems((prev) => prev.filter((i) => i.fkJogo !== fkJogo));
+      refreshCart();
     } catch {
       setError('Não foi possível remover o item.');
     }

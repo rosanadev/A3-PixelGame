@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { wishlistService, cartService } from '../services/api';
+import { usePagination } from '../hooks/usePagination';
+import Pagination from '../components/Pagination';
+import CartPlusIcon from '../components/icons/CartPlusIcon';
 import './Pages.css';
+
+const ITEMS_PER_PAGE = 8;
 
 function formatPrice(value) {
   const n = Number(value) || 0;
@@ -13,6 +18,8 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [feedback, setFeedback] = useState('');
+
+  const { page, setPage, totalPages, pageItems } = usePagination(games, ITEMS_PER_PAGE);
 
   useEffect(() => {
     wishlistService
@@ -61,8 +68,9 @@ export default function WishlistPage() {
           <Link to="/" className="btn btn-primary mt-1">Explorar jogos</Link>
         </div>
       ) : (
+        <>
         <div className="item-list">
-          {games.map((game) => (
+          {pageItems.map((game) => (
             <div className="card item-row" key={game.id}>
               <div className="item-thumb" aria-hidden="true">🎮</div>
               <div className="item-info">
@@ -73,7 +81,7 @@ export default function WishlistPage() {
               </div>
               <span className="item-price">{formatPrice(game.preco)}</span>
               <button className="btn btn-primary" onClick={() => handleAddToCart(game.id)}>
-                🛒 Carrinho
+                <CartPlusIcon size={18} /> Carrinho
               </button>
               <button
                 className="btn btn-ghost"
@@ -85,6 +93,8 @@ export default function WishlistPage() {
             </div>
           ))}
         </div>
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </>
       )}
     </div>
   );

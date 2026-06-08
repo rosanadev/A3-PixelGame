@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   gameService,
   cartService,
@@ -7,6 +8,8 @@ import {
   reviewService,
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import CartPlusIcon from '../components/icons/CartPlusIcon';
 import './Pages.css';
 
 function formatPrice(value) {
@@ -27,12 +30,14 @@ export default function GameDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { refresh: refreshCart } = useCart();
 
   const [game, setGame] = useState(null);
   const [reviews, setReviews] = useState({ media: 0, total: 0, lista: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [feedback, setFeedback] = useState('');
+  const [buying, setBuying] = useState(false);
 
   // Formulário de avaliação
   const [nota, setNota] = useState(5);
@@ -80,12 +85,38 @@ export default function GameDetailPage() {
 
   async function handleAddToCart() {
     if (!requireAuth()) return;
-    setFeedback('');
     try {
       await cartService.addItem(game.id);
-      setFeedback('Jogo adicionado ao carrinho!');
+      refreshCart();
+      toast.success(`${game.nome} adicionado ao carrinho!`);
     } catch (err) {
-      setFeedback(err.response?.data?.message || 'Não foi possível adicionar ao carrinho.');
+      toast.error(err.response?.data?.message || 'Não foi possível adicionar ao carrinho.');
+    }
+  }
+
+  async function handleBuyNow() {
+    if (!requireAuth()) return;
+    setFeedback('');
+    setBuying(true);
+    try {
+      await cartService.addItem(game.id);
+      refreshCart();
+      navigate('/checkout');
+    } catch (err) {
+      // Se o jogo já está no carrinho, isso não é um erro para "Comprar agora":
+      // o objetivo já foi atingido, então seguimos para o checkout.
+      try {
+        const { data } = await cartService.get();
+        const noCarrinho = (data?.carrinho?.itens || []).some((i) => i.fkJogo === game.id);
+        if (noCarrinho) {
+          navigate('/checkout');
+          return;
+        }
+      } catch {
+        /* ignora: cai no erro abaixo */
+      }
+      toast.error(err.response?.data?.message || 'Não foi possível iniciar a compra.');
+      setBuying(false);
     }
   }
 
@@ -166,7 +197,15 @@ export default function GameDetailPage() {
           {game.desconto > 0 && <span className="badge badge-purple">{game.desconto}% OFF</span>}
 
           <div className="detail-actions">
-            <button className="btn btn-primary" onClick={handleAddToCart}>🛒 Adicionar ao carrinho</button>
+            <button
+              className="btn btn-primary"
+              onClick={handleBuyNow}
+              disabled={buying}
+              aria-busy={buying}
+            >
+              {buying ? 'Processando...' : '⚡ Comprar agora'}
+            </button>
+            <button className="btn btn-outline" onClick={handleAddToCart}><CartPlusIcon size={18} /> Adicionar ao carrinho</button>
             <button className="btn btn-outline" onClick={handleAddToWishlist}>♡ Lista de desejos</button>
           </div>
 
