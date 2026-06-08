@@ -1,50 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cartService, gameService, orderService } from '../services/api';
+import { useCart } from '../context/CartContext';
 import './Pages.css';
 
 function formatPrice(value) {
   return `R$ ${(Number(value) || 0).toFixed(2)}`;
 }
 
-// Máscaras dos campos do cartão
-function maskCardNumber(value) {
-  return value
-    .replace(/\D/g, '')
-    .slice(0, 16)
-    .replace(/(\d{4})(?=\d)/g, '$1 ')
-    .trim();
-}
-
-function maskExpiry(value) {
-  const digits = value.replace(/\D/g, '').slice(0, 4);
-  if (digits.length <= 2) return digits;
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-}
-
-function maskCvv(value) {
-  return value.replace(/\D/g, '').slice(0, 4);
-}
-
-function maskCardName(value) {
-  return value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').toUpperCase();
-}
-
 const METODOS = [
-  { id: 'cartao', label: '💳 Cartão' },
   { id: 'pix', label: '⚡ Pix' },
   { id: 'boleto', label: '🧾 Boleto' },
 ];
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const { refresh: refreshCart } = useCart();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  const [metodo, setMetodo] = useState('cartao');
-  const [cartao, setCartao] = useState({ numero: '', nome: '', validade: '', cvv: '' });
+  const [metodo, setMetodo] = useState('pix');
 
   const loadCart = useCallback(async () => {
     setLoading(true);
@@ -81,11 +58,11 @@ export default function CheckoutPage() {
     setProcessing(true);
     try {
       // 1. Simula o pagamento
-      const dados = metodo === 'cartao' ? cartao : {};
-      await orderService.pay(metodo, dados);
+      await orderService.pay(metodo, {});
       // 2. Finaliza a venda (gera chaves e fecha o carrinho)
       const { data } = await orderService.checkout();
       if (data?.venda) {
+        refreshCart();
         navigate('/orders', { state: { sucesso: true } });
       } else {
         setError(data?.message || 'Não foi possível concluir a compra.');
@@ -139,67 +116,6 @@ export default function CheckoutPage() {
               </button>
             ))}
           </div>
-
-          {metodo === 'cartao' && (
-            <div className="mt-1">
-              <div className="form-group">
-                <label htmlFor="numero">Número do cartão</label>
-                <input
-                  id="numero"
-                  className="input-field"
-                  placeholder="0000 0000 0000 0000"
-                  inputMode="numeric"
-                  autoComplete="cc-number"
-                  maxLength={19}
-                  value={cartao.numero}
-                  onChange={(e) => setCartao({ ...cartao, numero: maskCardNumber(e.target.value) })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="nome">Nome impresso</label>
-                <input
-                  id="nome"
-                  className="input-field"
-                  placeholder="COMO ESTÁ NO CARTÃO"
-                  autoComplete="cc-name"
-                  value={cartao.nome}
-                  onChange={(e) => setCartao({ ...cartao, nome: maskCardName(e.target.value) })}
-                  required
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="validade">Validade</label>
-                  <input
-                    id="validade"
-                    className="input-field"
-                    placeholder="MM/AA"
-                    inputMode="numeric"
-                    autoComplete="cc-exp"
-                    maxLength={5}
-                    value={cartao.validade}
-                    onChange={(e) => setCartao({ ...cartao, validade: maskExpiry(e.target.value) })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="cvv">CVV</label>
-                  <input
-                    id="cvv"
-                    className="input-field"
-                    placeholder="123"
-                    inputMode="numeric"
-                    autoComplete="cc-csc"
-                    maxLength={4}
-                    value={cartao.cvv}
-                    onChange={(e) => setCartao({ ...cartao, cvv: maskCvv(e.target.value) })}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
           {metodo === 'pix' && (
             <p className="page-subtitle mt-1">
