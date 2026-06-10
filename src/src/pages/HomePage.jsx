@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { gameService, cartService, publicService } from '../services/api';
+import { gameService, cartService, publicService, categoryService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { usePagination } from '../hooks/usePagination';
@@ -15,24 +15,13 @@ const GAMES_PER_PAGE = 12;
 export default function HomePage() {
   const { user } = useAuth();
   const [games, setGames] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('category') || '';
-
-
-  // Funciona tanto para jogos públicos quanto autenticados
-  const categories = useMemo(() => {
-    const map = new Map();
-    games.forEach((g) => {
-      const nome = g.categoria || g.categoria?.nome;
-      const id = g.fkCategoria ?? g.fk_categoria;
-      if (nome && id) map.set(String(id), nome);
-    });
-    return Array.from(map.entries()).map(([id, nome]) => ({ id, nome }));
-  }, [games]);
 
   const filteredGames = useMemo(() => {
     let list = games;
@@ -66,16 +55,31 @@ export default function HomePage() {
     setLoading(true);
     setError('');
 
-    // Usa rota autenticada se logado (retorna id dos jogos, necessário para navegar)
-    // Usa rota pública se não logado
-    const fetch = user
-      ? gameService.getAll()
-      : publicService.getJogos();
+    if (user) {
+      // Logado: busca jogos e categorias com token
+      Promise.all([
+        gameService.getAll(),
+        categoryService.getAll(),
+      ])
+        .then(([gamesRes, catsRes]) => {
+          const jogos = gamesRes.data?.games || gamesRes.data || [];
+          setGames(jogos);
 
-    fetch
-      .then((r) => setGames(r.data?.games || r.data || []))
-      .catch(() => setError('Erro ao carregar jogos.'))
-      .finally(() => setLoading(false));
+          // Filtra só categorias que têm pelo menos um jogo cadastrado
+          const idsComJogos = new Set(jogos.map((g) => String(g.fkCategoria ?? g.fk_categoria)));
+          const todasCats = Array.isArray(catsRes.data) ? catsRes.data : [];
+          const catsComJogos = todasCats.filter((c) => idsComJogos.has(String(c.id)));
+          setCategories(catsComJogos);
+        })
+        .catch(() => setError('Erro ao carregar jogos.'))
+        .finally(() => setLoading(false));
+    } else {
+      // Não logado: rota pública (sem categorias pois não tem token)
+      publicService.getJogos()
+        .then((r) => setGames(r.data?.games || r.data || []))
+        .catch(() => setError('Erro ao carregar jogos.'))
+        .finally(() => setLoading(false));
+    }
   }, [user]);
 
   function handleCategory(id) {
@@ -93,26 +97,28 @@ export default function HomePage() {
         <p className="home-hero-sub">Os melhores jogos, na palma da sua mão.</p>
       </section>
 
-      {/* Filtro por categoria — extraído dos próprios jogos */}
-      <nav className="home-categories" aria-label="Filtrar por categoria">
-        <button
-          className={`category-chip ${!categoryFilter ? 'active' : ''}`}
-          onClick={() => handleCategory('')}
-          aria-pressed={!categoryFilter}
-        >
-          Todos
-        </button>
-        {categories.map((cat) => (
+      {/* Filtro por categoria — só aparece quando logado */}
+      {user && categories.length > 0 && (
+        <nav className="home-categories" aria-label="Filtrar por categoria">
           <button
-            key={cat.id}
-            className={`category-chip ${categoryFilter === cat.id ? 'active' : ''}`}
-            onClick={() => handleCategory(cat.id)}
-            aria-pressed={categoryFilter === cat.id}
+            className={`category-chip ${!categoryFilter ? 'active' : ''}`}
+            onClick={() => handleCategory('')}
+            aria-pressed={!categoryFilter}
           >
-            {cat.nome}
+            Todos
           </button>
-        ))}
-      </nav>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              className={`category-chip ${categoryFilter === String(cat.id) ? 'active' : ''}`}
+              onClick={() => handleCategory(cat.id)}
+              aria-pressed={categoryFilter === String(cat.id)}
+            >
+              {cat.nome}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {query && (
         <p className="home-search-info" aria-live="polite">
@@ -151,7 +157,6 @@ function GameCard({ game }) {
 
   const title = game.nome || 'Sem título';
   const price = game.preco ?? 0;
-  const category = game.categoria?.nome || game.categoria || '';
   const hasId = !!game.id;
 
   async function handleBuyNow() {
@@ -205,9 +210,6 @@ function GameCard({ game }) {
         )}
       </div>
       <div className="game-card-body">
-        <div className="game-card-tags">
-          {category && <span className="badge badge-purple">{category}</span>}
-        </div>
         <h2 className="game-card-title">{title}</h2>
         <div className="game-card-footer">
           <span className="game-card-price">
@@ -222,9 +224,9 @@ function GameCard({ game }) {
               Ver mais
             </Link>
           ) : (
-            <span className="btn btn-ghost game-card-btn" aria-label="Faça login para ver detalhes">
+            <Link to="/login" className="btn btn-ghost game-card-btn">
               🔒 Login
-            </span>
+            </Link>
           )}
         </div>
         {hasId && (
