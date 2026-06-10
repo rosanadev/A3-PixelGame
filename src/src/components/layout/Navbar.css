@@ -2,58 +2,56 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(13, 13, 26, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
+  background: #ffffff;
+  border-bottom: 1px solid #f0eaf5;
+  box-shadow: 0 1px 6px rgba(83, 74, 183, 0.08);
 }
 
 .navbar__inner {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   height: 64px;
 }
 
 /* Logo */
-.navbar__logo-text {
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: var(--text-primary);
-  white-space: nowrap;
+.navbar__logo-img {
+  height: 48px;
+  object-fit: contain;
 }
-.navbar__logo-text span { color: var(--purple-primary); }
 
 /* Busca */
 .navbar__search {
   flex: 1;
   max-width: 480px;
+}
+.navbar__search-wrapper {
+  position: relative;
   display: flex;
-  gap: 0;
+  align-items: center;
+}
+.navbar__search-icon {
+  position: absolute;
+  left: 0.75rem;
+  width: 16px;
+  height: 16px;
+  color: #BAACBC;
+  pointer-events: none;
 }
 .navbar__search-input {
-  flex: 1;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-right: none;
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #BAACBC;
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  background: #F3EDF7;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.9rem;
-}
-.navbar__search-input:focus {
+  color: #261046;
   outline: none;
-  border-color: var(--purple-primary);
+  transition: border-color 0.2s;
 }
-.navbar__search-btn {
-  background: var(--purple-primary);
-  border: none;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 0.5rem 0.8rem;
-  font-size: 1rem;
-  transition: background var(--transition);
-}
-.navbar__search-btn:hover { background: var(--purple-hover); }
+.navbar__search-input:focus { border-color: #534AB7; }
+.navbar__search-input::placeholder { color: #BAACBC; }
 
 /* Ações */
 .navbar__actions {
@@ -63,60 +61,80 @@
   margin-left: auto;
 }
 
+/* Botão entrar */
+.navbar__btn-purple {
+  background: #534AB7;
+  color: white;
+  height: 2.5rem;
+  padding: 0 1.5rem;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+.navbar__btn-purple:hover { background: #3B2063; }
+
+/* Ícones */
 .navbar__icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
-  font-size: 1.3rem;
-  color: var(--text-secondary);
-  padding: 0.4rem;
-  border-radius: var(--radius-sm);
-  transition: color var(--transition), background var(--transition);
-  line-height: 1;
+  background: #B7B7B720;
+  border: 1px solid #534AB7;
+  color: #534AB7;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  transition: background 0.2s, color 0.2s;
 }
-.navbar__icon-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+.navbar__icon-btn:hover { background: #534AB7; color: white; }
 
 .navbar__cart { position: relative; }
 .navbar__cart-badge {
   position: absolute;
-  top: 0.15rem;
-  right: 0.15rem;
-  width: 0.6rem;
-  height: 0.6rem;
-  background: var(--purple-primary);
+  top: 0.2rem;
+  right: 0.2rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  background: #534AB7;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--bg-primary, #11111a);
+  border: 2px solid white;
 }
 
 /* User menu */
 .navbar__user { position: relative; }
-
 .navbar__user-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
+  background: #F3EDF7;
+  border: 1px solid #BAACBC;
+  border-radius: 0.75rem;
+  color: #261046;
   padding: 0.4rem 0.8rem;
   font-size: 0.85rem;
-  transition: border-color var(--transition);
+  font-family: 'Montserrat', sans-serif;
+  transition: border-color 0.2s;
 }
-.navbar__user-btn:hover { border-color: var(--purple-primary); }
+.navbar__user-btn:hover { border-color: #534AB7; }
 
 .navbar__avatar {
   width: 28px;
   height: 28px;
-  background: var(--purple-primary);
+  background: #534AB7;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 0.8rem;
+  color: white;
 }
 
 .navbar__username {
@@ -124,18 +142,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #261046;
 }
 
 .navbar__dropdown {
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: white;
+  border: 1px solid #f0eaf5;
+  border-radius: 0.75rem;
   list-style: none;
   min-width: 200px;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 20px rgba(83, 74, 183, 0.15);
   overflow: hidden;
   z-index: 200;
 }
@@ -144,40 +163,45 @@
   display: block;
   padding: 0.65rem 1rem;
   font-size: 0.9rem;
-  color: var(--text-secondary);
-  transition: background var(--transition), color var(--transition);
+  color: #261046;
+  font-family: 'Montserrat', sans-serif;
+  transition: background 0.2s;
   width: 100%;
   text-align: left;
   background: none;
   border: none;
+  cursor: pointer;
 }
 .navbar__dropdown li a:hover,
 .navbar__dropdown li .navbar__logout-btn:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  background: #F3EDF7;
+  color: #534AB7;
 }
-.navbar__dropdown-divider { height: 1px; background: var(--border-color); margin: 4px 0; }
+.navbar__dropdown-divider { height: 1px; background: #f0eaf5; margin: 4px 0; }
 .navbar__dropdown-label {
   padding: 0.4rem 1rem;
   font-size: 0.75rem;
-  color: var(--purple-light);
+  color: #534AB7;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-family: 'Montserrat', sans-serif;
 }
 
-/* Hamburger (mobile) */
+/* Hamburger mobile */
 .navbar__hamburger { display: none; }
 
 /* Responsivo */
 @media (max-width: 768px) {
+  .navbar__inner { height: 56px; gap: 0.75rem; }
   .navbar__search { display: none; }
   .navbar__username { display: none; }
   .navbar__hamburger {
     display: block;
     background: none;
     border: none;
-    color: var(--text-primary);
+    color: #261046;
     font-size: 1.4rem;
+    cursor: pointer;
   }
 }

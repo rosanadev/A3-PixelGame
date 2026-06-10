@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import CartIcon from '../icons/CartIcon';
+import logoHorizontal from '../../img/login/logo-horizontal.png';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -28,57 +29,58 @@ export default function Navbar() {
   return (
     <header className="navbar" role="banner">
       <div className="container navbar__inner">
-        {/* Logo */}
+
+        {/* Logo real do projeto */}
         <Link to="/" className="navbar__logo" aria-label="PixelGame - Página inicial">
-          <span className="navbar__logo-text">Pixel<span>Game</span></span>
+          <img src={logoHorizontal} alt="PixelGame" className="navbar__logo-img" />
         </Link>
 
-        {/* Busca */}
+        {/* Busca com lupa */}
         <form className="navbar__search" onSubmit={handleSearch} role="search">
           <label htmlFor="navbar-search" className="sr-only">Buscar jogos</label>
-          <input
-            id="navbar-search"
-            type="search"
-            className="navbar__search-input"
-            placeholder="Buscar jogo..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar jogos"
-          />
-          <button type="submit" className="navbar__search-btn" aria-label="Executar busca">
-            🔍
-          </button>
+          <div className="navbar__search-wrapper">
+            <svg className="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              id="navbar-search"
+              type="search"
+              className="navbar__search-input"
+              placeholder="Buscar jogo..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Buscar jogos"
+            />
+          </div>
         </form>
 
         {/* Ações */}
         <nav className="navbar__actions" aria-label="Navegação do usuário">
           {user ? (
             <>
-              <Link to="/wishlist" className="navbar__icon-btn" aria-label="Lista de desejos" title="Lista de desejos">
-                ♡
-              </Link>
+              <Link to="/wishlist" className="navbar__icon-btn" aria-label="Lista de desejos" title="Lista de desejos">♡</Link>
               <Link
                 to="/cart"
                 className="navbar__icon-btn navbar__cart"
-                aria-label={count > 0 ? 'Carrinho de compras (com itens)' : 'Carrinho de compras'}
+                aria-label={count > 0 ? 'Carrinho (com itens)' : 'Carrinho'}
                 title="Carrinho"
               >
                 <CartIcon size={22} />
                 {count > 0 && <span className="navbar__cart-badge" aria-hidden="true" />}
               </Link>
 
-              {/* Menu do usuário */}
               <div className="navbar__user" onClick={() => setMenuOpen(!menuOpen)}>
                 <button
                   className="navbar__user-btn"
                   aria-haspopup="true"
                   aria-expanded={menuOpen}
-                  aria-label={`Menu do usuário: ${user.nome || user.name}`}
+                  aria-label={`Menu do usuário: ${user.nome}`}
                 >
                   <span className="navbar__avatar" aria-hidden="true">
-                    {(user.nome || user.name || 'U')[0].toUpperCase()}
+                    {(user.nome || 'U')[0].toUpperCase()}
                   </span>
-                  <span className="navbar__username">{user.nome || user.name}</span>
+                  <span className="navbar__username">{user.nome}</span>
                   <span aria-hidden="true">▾</span>
                 </button>
 
@@ -104,18 +106,15 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <Link to="/login" className="btn btn-primary">Entrar</Link>
+            <Link to="/login" className="navbar__btn-purple">Entrar</Link>
           )}
 
-          {/* Hamburger mobile */}
           <button
             className="navbar__hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Abrir menu"
             aria-expanded={menuOpen}
-          >
-            ☰
-          </button>
+          >☰</button>
         </nav>
       </div>
     </header>
