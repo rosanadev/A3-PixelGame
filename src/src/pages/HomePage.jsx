@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { gameService, categoryService, cartService } from '../services/api';
+import { gameService, cartService, publicService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { usePagination } from '../hooks/usePagination';
@@ -13,36 +13,44 @@ import './HomePage.css';
 const GAMES_PER_PAGE = 12;
 
 export default function HomePage() {
+  const { user } = useAuth();
   const [games, setGames] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get('q') || '';
-  const categoryId = searchParams.get('category') || '';
+  const categoryFilter = searchParams.get('category') || '';
 
-  // Filtro de categoria e busca no cliente: a API (GET /jogos) ignora os
-  // parâmetros de filtro e sempre retorna a lista completa, então filtramos
-  // aqui. A categoria é casada por fkCategoria (FK para categorias.id) e a
-  // busca por nome do jogo.
+
+  // Funciona tanto para jogos públicos quanto autenticados
+  const categories = useMemo(() => {
+    const map = new Map();
+    games.forEach((g) => {
+      const nome = g.categoria || g.categoria?.nome;
+      const id = g.fkCategoria ?? g.fk_categoria;
+      if (nome && id) map.set(String(id), nome);
+    });
+    return Array.from(map.entries()).map(([id, nome]) => ({ id, nome }));
+  }, [games]);
+
   const filteredGames = useMemo(() => {
     let list = games;
-    if (categoryId) {
-      list = list.filter((g) => String(g.fkCategoria) === String(categoryId));
+    if (categoryFilter) {
+      list = list.filter((g) =>
+        String(g.fkCategoria ?? g.fk_categoria) === String(categoryFilter)
+      );
     }
     if (query) {
       const q = query.toLowerCase();
       list = list.filter((g) => (g.nome || '').toLowerCase().includes(q));
     }
     return list;
-  }, [games, categoryId, query]);
+  }, [games, categoryFilter, query]);
 
   const { page, setPage, totalPages, pageItems } = usePagination(filteredGames, GAMES_PER_PAGE);
 
-  // Volta para a primeira página sempre que o filtro/busca muda
-  // (padrão recomendado de ajuste de estado durante a renderização).
-  const filterKey = `${query}|${categoryId}`;
+  const filterKey = `${query}|${categoryFilter}`;
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
   if (filterKey !== prevFilterKey) {
     setPrevFilterKey(filterKey);
@@ -55,18 +63,20 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    categoryService.getAll().then((r) => setCategories(r.data)).catch(() => {});
-  }, []);
-
-  useEffect(() => {
     setLoading(true);
     setError('');
-    gameService
-      .getAll()
+
+    // Usa rota autenticada se logado (retorna id dos jogos, necessário para navegar)
+    // Usa rota pública se não logado
+    const fetch = user
+      ? gameService.getAll()
+      : publicService.getJogos();
+
+    fetch
       .then((r) => setGames(r.data?.games || r.data || []))
       .catch(() => setError('Erro ao carregar jogos.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   function handleCategory(id) {
     const next = new URLSearchParams(searchParams);
@@ -78,41 +88,38 @@ export default function HomePage() {
 
   return (
     <div className="container home-page">
-      {/* Hero */}
       <section className="home-hero" aria-label="Banner de destaque">
         <h1 className="home-hero-title">Sua loja de jogos digitais</h1>
         <p className="home-hero-sub">Os melhores jogos, na palma da sua mão.</p>
       </section>
 
-      {/* Filtro por categoria */}
+      {/* Filtro por categoria — extraído dos próprios jogos */}
       <nav className="home-categories" aria-label="Filtrar por categoria">
         <button
-          className={`category-chip ${!categoryId ? 'active' : ''}`}
+          className={`category-chip ${!categoryFilter ? 'active' : ''}`}
           onClick={() => handleCategory('')}
-          aria-pressed={!categoryId}
+          aria-pressed={!categoryFilter}
         >
           Todos
         </button>
         {categories.map((cat) => (
           <button
             key={cat.id}
-            className={`category-chip ${categoryId === String(cat.id) ? 'active' : ''}`}
+            className={`category-chip ${categoryFilter === cat.id ? 'active' : ''}`}
             onClick={() => handleCategory(cat.id)}
-            aria-pressed={categoryId === String(cat.id)}
+            aria-pressed={categoryFilter === cat.id}
           >
-            {cat.nome || cat.name}
+            {cat.nome}
           </button>
         ))}
       </nav>
 
-      {/* Resultados de busca */}
       {query && (
         <p className="home-search-info" aria-live="polite">
           Resultados para: <strong>"{query}"</strong>
         </p>
       )}
 
-      {/* Grid de jogos */}
       {loading ? (
         <div className="page-loading" aria-label="Carregando jogos">
           <div className="spinner" />
@@ -124,8 +131,8 @@ export default function HomePage() {
       ) : (
         <section aria-label="Lista de jogos">
           <div className="games-grid">
-            {pageItems.map((game) => (
-              <GameCard key={game.id} game={game} />
+            {pageItems.map((game, idx) => (
+              <GameCard key={game.id ?? idx} game={game} />
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
@@ -142,43 +149,31 @@ function GameCard({ game }) {
   const [buying, setBuying] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const title = game.titulo || game.title || game.nome || 'Sem título';
-  const price = game.preco ?? game.price ?? 0;
-  const category = game.categoria?.nome || game.category?.name || game.categoria || '';
+  const title = game.nome || 'Sem título';
+  const price = game.preco ?? 0;
+  const category = game.categoria?.nome || game.categoria || '';
+  const hasId = !!game.id;
 
   async function handleBuyNow() {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+    if (!user) { navigate('/login'); return; }
     setBuying(true);
     try {
       await cartService.addItem(game.id);
       refreshCart();
       navigate('/checkout');
     } catch (err) {
-      // Se o jogo já está no carrinho, isso não é um erro para "Comprar agora":
-      // o objetivo já foi atingido, então seguimos para o checkout.
       try {
         const { data } = await cartService.get();
         const noCarrinho = (data?.carrinho?.itens || []).some((i) => i.fkJogo === game.id);
-        if (noCarrinho) {
-          navigate('/checkout');
-          return;
-        }
-      } catch {
-        /* ignora: cai no erro abaixo */
-      }
+        if (noCarrinho) { navigate('/checkout'); return; }
+      } catch { /* ignora */ }
       toast.error(err.response?.data?.message || 'Não foi possível iniciar a compra.');
       setBuying(false);
     }
   }
 
   async function handleAddToCart() {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+    if (!user) { navigate('/login'); return; }
     try {
       await cartService.addItem(game.id);
       setAddedToCart(true);
@@ -198,15 +193,16 @@ function GameCard({ game }) {
         ) : (
           <div className="game-card-placeholder">🎮</div>
         )}
-        <button
-          type="button"
-          className={`game-card-cart ${addedToCart ? 'added' : ''}`}
-          onClick={handleAddToCart}
-          aria-label={`Adicionar ${title} ao carrinho`}
-          title={addedToCart ? 'Adicionado ao carrinho' : 'Adicionar ao carrinho'}
-        >
-          {addedToCart ? <CheckIcon size={20} /> : <CartPlusIcon size={20} />}
-        </button>
+        {hasId && (
+          <button
+            type="button"
+            className={`game-card-cart ${addedToCart ? 'added' : ''}`}
+            onClick={handleAddToCart}
+            aria-label={`Adicionar ${title} ao carrinho`}
+          >
+            {addedToCart ? <CheckIcon size={20} /> : <CartPlusIcon size={20} />}
+          </button>
+        )}
       </div>
       <div className="game-card-body">
         <div className="game-card-tags">
@@ -217,24 +213,31 @@ function GameCard({ game }) {
           <span className="game-card-price">
             {price === 0 ? 'Grátis' : `R$ ${Number(price).toFixed(2)}`}
           </span>
-          <Link
-            to={`/games/${game.id}`}
-            className="btn btn-outline game-card-btn"
-            aria-label={`Ver detalhes de ${title}`}
-          >
-            Ver mais
-          </Link>
+          {hasId ? (
+            <Link
+              to={`/games/${game.id}`}
+              className="btn btn-outline game-card-btn"
+              aria-label={`Ver detalhes de ${title}`}
+            >
+              Ver mais
+            </Link>
+          ) : (
+            <span className="btn btn-ghost game-card-btn" aria-label="Faça login para ver detalhes">
+              🔒 Login
+            </span>
+          )}
         </div>
-        <button
-          type="button"
-          className="btn btn-primary game-card-buy"
-          onClick={handleBuyNow}
-          disabled={buying}
-          aria-busy={buying}
-          aria-label={`Comprar ${title} agora`}
-        >
-          {buying ? 'Processando...' : '⚡ Comprar agora'}
-        </button>
+        {hasId && (
+          <button
+            type="button"
+            className="btn btn-primary game-card-buy"
+            onClick={handleBuyNow}
+            disabled={buying}
+            aria-busy={buying}
+          >
+            {buying ? 'Processando...' : '⚡ Comprar agora'}
+          </button>
+        )}
       </div>
     </article>
   );
