@@ -1,16 +1,24 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { gameService, cartService, publicService, categoryService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { usePagination } from '../hooks/usePagination';
-import Pagination from '../components/Pagination';
-import CartPlusIcon from '../components/icons/CartPlusIcon';
-import CheckIcon from '../components/icons/CheckIcon';
 import './HomePage.css';
 
-const GAMES_PER_PAGE = 12;
+// Paleta de cores para placeholders dos jogos
+const CARD_COLORS = [
+  ['#534AB7', '#3B2063'],
+  ['#7b2dff', '#534AB7'],
+  ['#261046', '#534AB7'],
+  ['#3B2063', '#7b2dff'],
+  ['#2d1b69', '#534AB7'],
+  ['#1a0a3c', '#3B2063'],
+];
+
+function getCardColor(index) {
+  return CARD_COLORS[index % CARD_COLORS.length];
+}
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -19,6 +27,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
+  const [catScroll, setCatScroll] = useState(0);
+  const [popularScroll, setPopularScroll] = useState(0);
+  const catRef = useRef(null);
+  const popularRef = useRef(null);
 
   const query = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('category') || '';
@@ -37,44 +49,34 @@ export default function HomePage() {
     return list;
   }, [games, categoryFilter, query]);
 
-  const { page, setPage, totalPages, pageItems } = usePagination(filteredGames, GAMES_PER_PAGE);
+  // Jogo destaque — primeiro da lista
+  const featuredGame = games[0] || null;
 
-  const filterKey = `${query}|${categoryFilter}`;
-  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
-  if (filterKey !== prevFilterKey) {
-    setPrevFilterKey(filterKey);
-    setPage(1);
-  }
-
-  function goToPage(p) {
-    setPage(p);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  // Contagem de jogos por categoria
+  const countByCategory = useMemo(() => {
+    const map = {};
+    games.forEach((g) => {
+      const id = String(g.fkCategoria ?? g.fk_categoria);
+      map[id] = (map[id] || 0) + 1;
+    });
+    return map;
+  }, [games]);
 
   useEffect(() => {
     setLoading(true);
     setError('');
-
     if (user) {
-      // Logado: busca jogos e categorias com token
-      Promise.all([
-        gameService.getAll(),
-        categoryService.getAll(),
-      ])
+      Promise.all([gameService.getAll(), categoryService.getAll()])
         .then(([gamesRes, catsRes]) => {
           const jogos = gamesRes.data?.games || gamesRes.data || [];
           setGames(jogos);
-
-          // Filtra só categorias que têm pelo menos um jogo cadastrado
           const idsComJogos = new Set(jogos.map((g) => String(g.fkCategoria ?? g.fk_categoria)));
-          const todasCats = Array.isArray(catsRes.data) ? catsRes.data : [];
-          const catsComJogos = todasCats.filter((c) => idsComJogos.has(String(c.id)));
-          setCategories(catsComJogos);
+          const todas = Array.isArray(catsRes.data) ? catsRes.data : [];
+          setCategories(todas.filter((c) => idsComJogos.has(String(c.id))));
         })
         .catch(() => setError('Erro ao carregar jogos.'))
         .finally(() => setLoading(false));
     } else {
-      // Não logado: rota pública (sem categorias pois não tem token)
       publicService.getJogos()
         .then((r) => setGames(r.data?.games || r.data || []))
         .catch(() => setError('Erro ao carregar jogos.'))
@@ -90,94 +92,143 @@ export default function HomePage() {
     setSearchParams(next);
   }
 
+  function scrollCat(dir) {
+    if (catRef.current) {
+      catRef.current.scrollBy({ left: dir * 260, behavior: 'smooth' });
+      setCatScroll(catRef.current.scrollLeft + dir * 260);
+    }
+  }
+
+  function scrollPopular(dir) {
+    if (popularRef.current) {
+      popularRef.current.scrollBy({ left: dir * 260, behavior: 'smooth' });
+      setPopularScroll(popularRef.current.scrollLeft + dir * 260);
+    }
+  }
+
   return (
-    <div className="container home-page">
-      <section className="home-hero" aria-label="Banner de destaque">
-        <h1 className="home-hero-title">Sua loja de jogos digitais</h1>
-        <p className="home-hero-sub">Os melhores jogos, na palma da sua mão.</p>
+    <div className="home-page">
+
+      {/* ===== BANNER HERO ===== */}
+      {featuredGame && (
+        <section className="home-hero" aria-label="Jogo em destaque">
+          <div className="home-hero-bg" aria-hidden="true">
+            <div className="home-hero-overlay" />
+          </div>
+          <div className="home-hero-content">
+<h1 className="home-hero-title">{featuredGame.nome}</h1>
+            {featuredGame.descricao && (
+              <p className="home-hero-sub">
+                {featuredGame.descricao.replace(/^"|"$/g, '').substring(0, 80)}
+              </p>
+            )}
+            {featuredGame.id && (
+              <Link to={`/games/${featuredGame.id}`} className="home-hero-btn">
+                Ver jogo
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ===== CARROSSEL DE CATEGORIAS ===== */}
+      {user && categories.length > 0 && (
+        <section className="home-cats-section" aria-label="Categorias">
+          <div className="home-cats-header">
+            <span className="home-cats-label">Categorias</span>
+          </div>
+          <div className="home-cats-wrapper">
+            <button
+              className="home-cats-arrow left"
+              onClick={() => scrollCat(-1)}
+              aria-label="Categorias anteriores"
+            >‹</button>
+            <div className="home-cats-track" ref={catRef}>
+              <button
+                className={`home-cat-chip ${!categoryFilter ? 'active' : ''}`}
+                onClick={() => handleCategory('')}
+                aria-pressed={!categoryFilter}
+              >
+<span className="home-cat-name">Todos</span>
+                <span className="home-cat-count">{games.length} jogos</span>
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  className={`home-cat-chip ${categoryFilter === String(cat.id) ? 'active' : ''}`}
+                  onClick={() => handleCategory(cat.id)}
+                  aria-pressed={categoryFilter === String(cat.id)}
+                >
+<span className="home-cat-name">{cat.nome}</span>
+                  <span className="home-cat-count">{countByCategory[String(cat.id)] || 0} jogos</span>
+                </button>
+              ))}
+            </div>
+            <button
+              className="home-cats-arrow right"
+              onClick={() => scrollCat(1)}
+              aria-label="Próximas categorias"
+            >›</button>
+          </div>
+        </section>
+      )}
+
+      {/* ===== SEÇÃO POPULAR ===== */}
+      <section className="home-popular-section" aria-label="Jogos populares">
+        <div className="home-popular-header">
+          <span className="home-popular-label">Popular</span>
+        </div>
+
+        {loading ? (
+          <div className="page-loading"><div className="spinner" /></div>
+        ) : error ? (
+          <div className="alert alert-error container" role="alert">{error}</div>
+        ) : filteredGames.length === 0 ? (
+          <p className="home-empty" role="status">Nenhum jogo encontrado.</p>
+        ) : (
+          <div className="home-popular-wrapper">
+            <button
+              className="home-cats-arrow left"
+              onClick={() => scrollPopular(-1)}
+              aria-label="Jogos anteriores"
+            >‹</button>
+            <div className="home-popular-track" ref={popularRef}>
+              {filteredGames.map((game, idx) => (
+                <GameCard key={game.id ?? idx} game={game} index={idx} />
+              ))}
+            </div>
+            <button
+              className="home-cats-arrow right"
+              onClick={() => scrollPopular(1)}
+              aria-label="Próximos jogos"
+            >›</button>
+          </div>
+        )}
       </section>
 
-      {/* Filtro por categoria — só aparece quando logado */}
-      {user && categories.length > 0 && (
-        <nav className="home-categories" aria-label="Filtrar por categoria">
-          <button
-            className={`category-chip ${!categoryFilter ? 'active' : ''}`}
-            onClick={() => handleCategory('')}
-            aria-pressed={!categoryFilter}
-          >
-            Todos
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              className={`category-chip ${categoryFilter === String(cat.id) ? 'active' : ''}`}
-              onClick={() => handleCategory(cat.id)}
-              aria-pressed={categoryFilter === String(cat.id)}
-            >
-              {cat.nome}
-            </button>
-          ))}
-        </nav>
-      )}
-
       {query && (
-        <p className="home-search-info" aria-live="polite">
+        <p className="home-search-info container" aria-live="polite">
           Resultados para: <strong>"{query}"</strong>
         </p>
-      )}
-
-      {loading ? (
-        <div className="page-loading" aria-label="Carregando jogos">
-          <div className="spinner" />
-        </div>
-      ) : error ? (
-        <div className="alert alert-error" role="alert">{error}</div>
-      ) : filteredGames.length === 0 ? (
-        <p className="home-empty" role="status">Nenhum jogo encontrado.</p>
-      ) : (
-        <section aria-label="Lista de jogos">
-          <div className="games-grid">
-            {pageItems.map((game, idx) => (
-              <GameCard key={game.id ?? idx} game={game} />
-            ))}
-          </div>
-          <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
-        </section>
       )}
     </div>
   );
 }
 
-function GameCard({ game }) {
+function GameCard({ game, index }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { refresh: refreshCart } = useCart();
-  const [buying, setBuying] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [colors] = useState(getCardColor(index));
 
   const title = game.nome || 'Sem título';
   const price = game.preco ?? 0;
   const hasId = !!game.id;
 
-  async function handleBuyNow() {
-    if (!user) { navigate('/login'); return; }
-    setBuying(true);
-    try {
-      await cartService.addItem(game.id);
-      refreshCart();
-      navigate('/checkout');
-    } catch (err) {
-      try {
-        const { data } = await cartService.get();
-        const noCarrinho = (data?.carrinho?.itens || []).some((i) => i.fkJogo === game.id);
-        if (noCarrinho) { navigate('/checkout'); return; }
-      } catch { /* ignora */ }
-      toast.error(err.response?.data?.message || 'Não foi possível iniciar a compra.');
-      setBuying(false);
-    }
-  }
-
-  async function handleAddToCart() {
+  async function handleAddToCart(e) {
+    e.preventDefault();
+    e.stopPropagation();
     if (!user) { navigate('/login'); return; }
     try {
       await cartService.addItem(game.id);
@@ -190,57 +241,32 @@ function GameCard({ game }) {
     }
   }
 
-  return (
-    <article className="game-card card" aria-label={`Jogo: ${title}`}>
-      <div className="game-card-img" aria-hidden="true">
-        {game.imagem || game.image ? (
-          <img src={game.imagem || game.image} alt={`Capa do jogo ${title}`} loading="lazy" />
-        ) : (
-          <div className="game-card-placeholder">🎮</div>
-        )}
-        {hasId && (
+  const cardContent = (
+    <div className="pop-card">
+      {/* Placeholder colorido */}
+      <div
+        className="pop-card-img"
+        style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
+        aria-hidden="true"
+      >
+{hasId && user && (
           <button
-            type="button"
-            className={`game-card-cart ${addedToCart ? 'added' : ''}`}
+            className={`pop-card-cart ${addedToCart ? 'added' : ''}`}
             onClick={handleAddToCart}
             aria-label={`Adicionar ${title} ao carrinho`}
           >
-            {addedToCart ? <CheckIcon size={20} /> : <CartPlusIcon size={20} />}
+            {addedToCart ? '✓' : '🛒'}
           </button>
         )}
       </div>
-      <div className="game-card-body">
-        <h2 className="game-card-title">{title}</h2>
-        <div className="game-card-footer">
-          <span className="game-card-price">
-            {price === 0 ? 'Grátis' : `R$ ${Number(price).toFixed(2)}`}
-          </span>
-          {hasId ? (
-            <Link
-              to={`/games/${game.id}`}
-              className="btn btn-outline game-card-btn"
-              aria-label={`Ver detalhes de ${title}`}
-            >
-              Ver mais
-            </Link>
-          ) : (
-            <Link to="/login" className="btn btn-ghost game-card-btn">
-              🔒 Login
-            </Link>
-          )}
-        </div>
-        {hasId && (
-          <button
-            type="button"
-            className="btn btn-primary game-card-buy"
-            onClick={handleBuyNow}
-            disabled={buying}
-            aria-busy={buying}
-          >
-            {buying ? 'Processando...' : '⚡ Comprar agora'}
-          </button>
-        )}
-      </div>
-    </article>
+      <p className="pop-card-name">{title}</p>
+      <p className="pop-card-price">
+        {price === 0 ? 'Grátis' : `R$ ${Number(price).toFixed(2)}`}
+      </p>
+    </div>
   );
+
+  return hasId
+    ? <Link to={`/games/${game.id}`} className="pop-card-link" aria-label={`Ver ${title}`}>{cardContent}</Link>
+    : <div className="pop-card-link">{cardContent}</div>;
 }
