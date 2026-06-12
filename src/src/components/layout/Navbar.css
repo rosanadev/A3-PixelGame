@@ -24,6 +24,22 @@
 }
 .navbar__logo-text span { color: var(--purple-primary); }
 
+/* Links principais */
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.navbar__link {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color var(--transition), background var(--transition);
+}
+.navbar__link:hover { color: var(--text-primary); background: var(--bg-hover); }
+
 /* Busca */
 .navbar__search {
   flex: 1;
@@ -172,6 +188,7 @@
 /* Responsivo */
 @media (max-width: 768px) {
   .navbar__search { display: none; }
+  .navbar__links { display: none; }
   .navbar__username { display: none; }
   .navbar__hamburger {
     display: block;
