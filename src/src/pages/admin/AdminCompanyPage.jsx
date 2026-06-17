@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { companyService } from '../../services/api';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import '../Pages.css';
 
 export default function AdminCompanyPage() {
@@ -11,6 +12,7 @@ export default function AdminCompanyPage() {
   const [nome, setNome] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -58,11 +60,13 @@ export default function AdminCompanyPage() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm('Tem certeza que deseja excluir esta empresa?')) return;
+  async function confirmDelete() {
+    const empresa = deleteTarget;
+    setDeleteTarget(null);
+    if (!empresa) return;
     try {
-      await companyService.remove(id);
-      setCompanies((prev) => prev.filter((c) => c.id !== id));
+      await companyService.remove(empresa.id);
+      setCompanies((prev) => prev.filter((c) => c.id !== empresa.id));
     } catch {
       setError('Não foi possível excluir a empresa.');
     }
@@ -126,7 +130,7 @@ export default function AdminCompanyPage() {
                     <td>
                       <div className="table-actions">
                         <button className="btn btn-outline" onClick={() => startEdit(c)}>Editar</button>
-                        <button className="btn btn-danger" onClick={() => handleDelete(c.id)}>Excluir</button>
+                        <button className="btn btn-danger" onClick={() => setDeleteTarget(c)}>Excluir</button>
                       </div>
                     </td>
                   </tr>
@@ -136,6 +140,16 @@ export default function AdminCompanyPage() {
           </div>
         )}
       </section>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Excluir empresa"
+        message={`Tem certeza que deseja excluir "${deleteTarget?.nome}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

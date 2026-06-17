@@ -3,6 +3,7 @@ import { gameService, categoryService, companyService } from '../../services/api
 import { usePagination } from '../../hooks/usePagination';
 import Pagination from '../../components/Pagination';
 import Modal from '../../components/Modal';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import '../Pages.css';
 
 const ROWS_PER_PAGE = 10;
@@ -59,6 +60,7 @@ export default function AdminGamesPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { page, setPage, totalPages, pageItems } = usePagination(games, ROWS_PER_PAGE);
 
@@ -198,12 +200,14 @@ export default function AdminGamesPage() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm('Tem certeza que deseja excluir este jogo?')) return;
+  async function confirmDelete() {
+    const game = deleteTarget;
+    setDeleteTarget(null);
+    if (!game) return;
     setPageError('');
     try {
-      await gameService.remove(id);
-      setGames((prev) => prev.filter((g) => g.id !== id));
+      await gameService.remove(game.id);
+      setGames((prev) => prev.filter((g) => g.id !== game.id));
     } catch (err) {
       // FK: o jogo pode estar referenciado em carrinhos/vendas/avaliações.
       const raw = `${err.response?.data?.error || ''}`.toLowerCase();
@@ -257,7 +261,7 @@ export default function AdminGamesPage() {
                     <td>
                       <div className="table-actions">
                         <button className="btn btn-outline" onClick={() => openEdit(g)}>Editar</button>
-                        <button className="btn btn-danger" onClick={() => handleDelete(g.id)}>Excluir</button>
+                        <button className="btn btn-danger" onClick={() => setDeleteTarget(g)}>Excluir</button>
                       </div>
                     </td>
                   </tr>
@@ -403,6 +407,16 @@ export default function AdminGamesPage() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Excluir jogo"
+        message={`Tem certeza que deseja excluir "${deleteTarget?.nome}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        danger
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
