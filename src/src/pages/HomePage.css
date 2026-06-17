@@ -143,9 +143,16 @@
 .home-cat-name { color: white; font-size: 0.82rem; font-weight: 600; font-family: 'Montserrat', sans-serif; }
 .home-cat-count { color: rgba(255,255,255,0.5); font-size: 0.7rem; }
 
-/* ===== POPULAR ===== */
-.home-popular-section { padding: 2rem; }
+/* ===== LINHAS DE JOGOS ===== */
+.home-popular-section { padding: 1.25rem 2rem; }
 .home-popular-header { display: none; }
+.home-row-header { margin-bottom: 0.75rem; padding-left: 0.25rem; }
+.home-row-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #261046;
+}
 .home-popular-wrapper {
   display: flex;
   align-items: center;
@@ -204,6 +211,31 @@
 .pop-card-img:hover .pop-card-cart { opacity: 1; }
 .pop-card-cart:hover { background: #534AB7; color: white; transform: scale(1.1); }
 .pop-card-cart.added { background: #1f9d55; color: white; opacity: 1; }
+
+/* Favoritar (coração) — aparece no hover, ao lado do carrinho */
+.pop-card-fav {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #e0457b;
+  font-size: 1.05rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.pop-card-img:hover .pop-card-fav { opacity: 1; }
+.pop-card-fav:hover { background: #e0457b; color: #fff; transform: scale(1.1); }
+.pop-card-fav.active { opacity: 1; background: #e0457b; color: #fff; }
 .pop-card-name {
   font-size: 0.78rem;
   font-weight: 600;

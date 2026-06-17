@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { gameService, cartService, publicService, categoryService } from '../services/api';
+import { gameService, cartService, publicService, categoryService, wishlistService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './HomePage.css';
@@ -28,9 +28,7 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const [catScroll, setCatScroll] = useState(0);
-  const [popularScroll, setPopularScroll] = useState(0);
   const catRef = useRef(null);
-  const popularRef = useRef(null);
 
   const query = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('category') || '';
@@ -51,6 +49,20 @@ export default function HomePage() {
 
   // Jogo destaque — primeiro da lista
   const featuredGame = games[0] || null;
+
+  // Linhas temáticas da home (API-puro: apenas fatias da lista de jogos)
+  const novidades = useMemo(
+    () => [...games].sort((a, b) => (Number(b.ano) || 0) - (Number(a.ano) || 0)).slice(0, 14),
+    [games],
+  );
+  const promocoes = useMemo(
+    () => games.filter((g) => Number(g.desconto) > 0),
+    [games],
+  );
+  const gratis = useMemo(
+    () => games.filter((g) => Number(g.preco) === 0),
+    [games],
+  );
 
   // Contagem de jogos por categoria
   const countByCategory = useMemo(() => {
@@ -99,12 +111,7 @@ export default function HomePage() {
     }
   }
 
-  function scrollPopular(dir) {
-    if (popularRef.current) {
-      popularRef.current.scrollBy({ left: dir * 260, behavior: 'smooth' });
-      setPopularScroll(popularRef.current.scrollLeft + dir * 260);
-    }
-  }
+  const filtering = !!(query || categoryFilter);
 
   return (
     <div className="home-page">
@@ -174,45 +181,60 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ===== SEÇÃO POPULAR ===== */}
-      <section className="home-popular-section" aria-label="Jogos populares">
-        <div className="home-popular-header">
-          <span className="home-popular-label">Popular</span>
-        </div>
-
-        {loading ? (
-          <div className="page-loading"><div className="spinner" /></div>
-        ) : error ? (
-          <div className="alert alert-error container" role="alert">{error}</div>
-        ) : filteredGames.length === 0 ? (
-          <p className="home-empty" role="status">Nenhum jogo encontrado.</p>
-        ) : (
-          <div className="home-popular-wrapper">
-            <button
-              className="home-cats-arrow left"
-              onClick={() => scrollPopular(-1)}
-              aria-label="Jogos anteriores"
-            >‹</button>
-            <div className="home-popular-track" ref={popularRef}>
-              {filteredGames.map((game, idx) => (
-                <GameCard key={game.id ?? idx} game={game} index={idx} />
-              ))}
-            </div>
-            <button
-              className="home-cats-arrow right"
-              onClick={() => scrollPopular(1)}
-              aria-label="Próximos jogos"
-            >›</button>
-          </div>
-        )}
-      </section>
-
-      {query && (
-        <p className="home-search-info container" aria-live="polite">
-          Resultados para: <strong>"{query}"</strong>
-        </p>
+      {/* ===== LINHAS DE JOGOS ===== */}
+      {loading ? (
+        <div className="page-loading"><div className="spinner" /></div>
+      ) : error ? (
+        <div className="alert alert-error container" role="alert">{error}</div>
+      ) : filtering ? (
+        <>
+          {query && (
+            <p className="home-search-info container" aria-live="polite">
+              Resultados para: <strong>"{query}"</strong>
+            </p>
+          )}
+          {filteredGames.length === 0 ? (
+            <p className="home-empty" role="status">Nenhum jogo encontrado.</p>
+          ) : (
+            <GameCarousel title="Resultados" games={filteredGames} />
+          )}
+        </>
+      ) : (
+        <>
+          <GameCarousel title="Popular" games={games} />
+          <GameCarousel title="Novidades" games={novidades} />
+          <GameCarousel title="Em promoção" games={promocoes} />
+          <GameCarousel title="Grátis para jogar" games={gratis} />
+        </>
       )}
     </div>
+  );
+}
+
+function GameCarousel({ title, games }) {
+  const ref = useRef(null);
+
+  function scroll(dir) {
+    if (ref.current) ref.current.scrollBy({ left: dir * 280, behavior: 'smooth' });
+  }
+
+  if (!games || games.length === 0) return null;
+
+  return (
+    <section className="home-popular-section" aria-label={title}>
+      <div className="home-row-header">
+        <span className="home-row-title">{title}</span>
+      </div>
+      <div className="home-popular-wrapper">
+        <button className="home-cats-arrow left" onClick={() => scroll(-1)} aria-label="Anteriores">‹</button>
+        <div className="home-popular-track" ref={ref}>
+          {games.map((game, idx) => (
+            <GameCard key={game.id ?? idx} game={game} index={idx} />
+          ))}
+        </div>
+        <button className="home-cats-arrow right" onClick={() => scroll(1)} aria-label="Próximos">›</button>
+      </div>
+    </section>
   );
 }
 
@@ -221,6 +243,7 @@ function GameCard({ game, index }) {
   const { user } = useAuth();
   const { refresh: refreshCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
+  const [faved, setFaved] = useState(false);
   const [colors] = useState(getCardColor(index));
 
   const title = game.nome || 'Sem título';
@@ -242,6 +265,24 @@ function GameCard({ game, index }) {
     }
   }
 
+  async function handleAddToWishlist(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) { navigate('/login'); return; }
+    try {
+      await wishlistService.add(game.id);
+      setFaved(true);
+      toast.success(`${title} adicionado aos favoritos!`);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        setFaved(true);
+        toast(`${title} já está nos favoritos.`);
+      } else {
+        toast.error(err.response?.data?.error || 'Não foi possível favoritar.');
+      }
+    }
+  }
+
   const cardContent = (
     <div className="pop-card">
       {/* Placeholder colorido */}
@@ -250,14 +291,25 @@ function GameCard({ game, index }) {
         style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
         aria-hidden="true"
       >
-{hasId && user && (
-          <button
-            className={`pop-card-cart ${addedToCart ? 'added' : ''}`}
-            onClick={handleAddToCart}
-            aria-label={`Adicionar ${title} ao carrinho`}
-          >
-            {addedToCart ? '✓' : '🛒'}
-          </button>
+        {hasId && user && (
+          <>
+            <button
+              className={`pop-card-fav ${faved ? 'active' : ''}`}
+              onClick={handleAddToWishlist}
+              aria-label={`Adicionar ${title} aos favoritos`}
+              title="Adicionar aos favoritos"
+            >
+              {faved ? '♥' : '♡'}
+            </button>
+            <button
+              className={`pop-card-cart ${addedToCart ? 'added' : ''}`}
+              onClick={handleAddToCart}
+              aria-label={`Adicionar ${title} ao carrinho`}
+              title="Adicionar ao carrinho"
+            >
+              {addedToCart ? '✓' : '🛒'}
+            </button>
+          </>
         )}
       </div>
       <p className="pop-card-name">{title}</p>
