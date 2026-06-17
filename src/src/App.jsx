@@ -6,6 +6,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { FontScaleProvider } from './context/FontScaleContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
+import AccessibilityBar from './components/layout/AccessibilityBar';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -32,6 +33,7 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
         <Toaster position="bottom-right" richColors closeButton />
+        <AccessibilityBar />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
