@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { userService, profileService } from '../../services/api';
 import '../Pages.css';
@@ -10,6 +10,18 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [novoPerfil, setNovoPerfil] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter(
+      (u) =>
+        (u.nome || '').toLowerCase().includes(q) ||
+        (u.email || '').toLowerCase().includes(q) ||
+        String(u.id) === q,
+    );
+  }, [users, search]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -93,13 +105,28 @@ export default function AdminUsersPage() {
       </section>
 
       <section className="card mt-1" aria-label="Lista de usuários">
-        <h2>Usuários cadastrados</h2>
+        <div className="page-header" style={{ marginBottom: '1rem' }}>
+          <h2>Usuários cadastrados</h2>
+          <div className="form-group" style={{ margin: 0, minWidth: 220 }}>
+            <label htmlFor="usuario-busca" className="sr-only">Buscar usuário</label>
+            <input
+              id="usuario-busca"
+              type="search"
+              className="input-field"
+              placeholder="Buscar por nome ou e-mail..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
         {loading ? (
           <div className="page-loading"><div className="spinner" /></div>
         ) : users.length === 0 ? (
           <p className="page-subtitle mt-1">Nenhum usuário encontrado.</p>
+        ) : filtered.length === 0 ? (
+          <p className="page-subtitle mt-1">Nenhum usuário encontrado para "{search}".</p>
         ) : (
-          <div style={{ overflowX: 'auto' }} className="mt-1">
+          <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
                 <tr>
@@ -110,7 +137,7 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((u) => (
+                {filtered.map((u) => (
                   <tr key={u.id}>
                     <td>{u.id}</td>
                     <td>{u.nome}</td>

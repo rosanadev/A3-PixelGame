@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { toast } from 'sonner';
 import { gameService, categoryService, companyService } from '../../services/api';
 import { usePagination } from '../../hooks/usePagination';
 import Pagination from '../../components/Pagination';
@@ -51,8 +52,7 @@ export default function AdminGamesPage() {
   const [categories, setCategories] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pageError, setPageError] = useState('');
-  const [feedback, setFeedback] = useState('');
+  const [search, setSearch] = useState('');
 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY);
@@ -62,7 +62,15 @@ export default function AdminGamesPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { page, setPage, totalPages, pageItems } = usePagination(games, ROWS_PER_PAGE);
+  const filteredGames = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return games;
+    return games.filter(
+      (g) => (g.nome || '').toLowerCase().includes(q) || String(g.id) === q,
+    );
+  }, [games, search]);
+
+  const { page, setPage, totalPages, pageItems } = usePagination(filteredGames, ROWS_PER_PAGE);
 
   const loadGames = useCallback(() => {
     setLoading(true);
@@ -166,7 +174,6 @@ export default function AdminGamesPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setFormError('');
-    setFeedback('');
 
     const errs = validate();
     setFieldErrors(errs);
@@ -186,10 +193,10 @@ export default function AdminGamesPage() {
     try {
       if (editingId) {
         await gameService.update(editingId, payload);
-        setFeedback('Jogo atualizado com sucesso!');
+        toast.success('Jogo atualizado com sucesso!');
       } else {
         await gameService.create(payload);
-        setFeedback('Jogo criado com sucesso!');
+        toast.success('Jogo criado com sucesso!');
       }
       closeModal();
       loadGames();
@@ -204,16 +211,16 @@ export default function AdminGamesPage() {
     const game = deleteTarget;
     setDeleteTarget(null);
     if (!game) return;
-    setPageError('');
     try {
       await gameService.remove(game.id);
       setGames((prev) => prev.filter((g) => g.id !== game.id));
+      toast.success(`Jogo "${game.nome}" excluído com sucesso.`);
     } catch (err) {
       // FK: o jogo pode estar referenciado em carrinhos/vendas/avaliações.
       const raw = `${err.response?.data?.error || ''}`.toLowerCase();
-      setPageError(
+      toast.error(
         raw.includes('foreign key')
-          ? 'Não é possível excluir: este jogo está vinculado a carrinhos, vendas ou avaliações.'
+          ? `Não é possível excluir "${game.nome}": está vinculado a carrinhos, vendas ou avaliações.`
           : 'Não foi possível excluir o jogo.',
       );
     }
@@ -229,18 +236,30 @@ export default function AdminGamesPage() {
         <button className="btn btn-primary" onClick={openCreate}>+ Novo jogo</button>
       </header>
 
-      {pageError && <div className="alert alert-error" role="alert">{pageError}</div>}
-      {feedback && <div className="alert alert-success" role="status">{feedback}</div>}
-
       {/* Lista */}
       <section className="card" aria-label="Lista de jogos">
-        <h2>Jogos cadastrados</h2>
+        <div className="page-header" style={{ marginBottom: '1rem' }}>
+          <h2>Jogos cadastrados</h2>
+          <div className="form-group" style={{ margin: 0, minWidth: 220 }}>
+            <label htmlFor="jogo-busca" className="sr-only">Buscar jogo</label>
+            <input
+              id="jogo-busca"
+              type="search"
+              className="input-field"
+              placeholder="Buscar jogo..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
         {loading ? (
           <div className="page-loading"><div className="spinner" /></div>
         ) : games.length === 0 ? (
           <p className="page-subtitle mt-1">Nenhum jogo cadastrado.</p>
+        ) : filteredGames.length === 0 ? (
+          <p className="page-subtitle mt-1">Nenhum jogo encontrado para "{search}".</p>
         ) : (
-          <div style={{ overflowX: 'auto' }} className="mt-1">
+          <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
                 <tr>
