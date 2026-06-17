@@ -26,6 +26,19 @@
   padding: 2.5rem 4rem;
   max-width: 560px;
 }
+.home-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(4px);
+}
 .home-hero-title {
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(1.8rem, 3vw, 2.6rem);

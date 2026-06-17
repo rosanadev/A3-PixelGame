@@ -116,7 +116,8 @@ export default function HomePage() {
             <div className="home-hero-overlay" />
           </div>
           <div className="home-hero-content">
-<h1 className="home-hero-title">{featuredGame.nome}</h1>
+            <span className="home-hero-badge">Destaque da semana</span>
+            <h1 className="home-hero-title">{featuredGame.nome}</h1>
             {featuredGame.descricao && (
               <p className="home-hero-sub">
                 {featuredGame.descricao.replace(/^"|"$/g, '').substring(0, 80)}
