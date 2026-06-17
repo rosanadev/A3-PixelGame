@@ -27,7 +27,9 @@ api.interceptors.response.use(
 export const authService = {
   login: (email, senha) => api.post('/auth/login', { email, senha }),
   register: (data) => api.post('/auth/register', data),
-  changePassword: (data) => api.put('/auth/change-password', data),
+  // A API espera { currentPassword, newPassword }.
+  changePassword: ({ senhaAtual, novaSenha }) =>
+    api.put('/auth/change-password', { currentPassword: senhaAtual, newPassword: novaSenha }),
 };
 
 export const gameService = {
@@ -71,6 +73,8 @@ export const wishlistService = {
 
 export const reviewService = {
   getMedia: (jogoId) => api.get(`/avaliacoes/media/${jogoId}`),
+  // GET /avaliacoes retorna apenas as avaliações do próprio usuário logado.
+  getMine: () => api.get('/avaliacoes'),
   create: (jogoId, nota, comentario) =>
     api.post('/avaliacoes', { jogoId, nota, comentario }),
   update: (jogoId, nota, comentario) =>
@@ -78,7 +82,8 @@ export const reviewService = {
 };
 
 export const reportService = {
-  jogosMaisVendidos: () => api.get('/relatorios/jogos-mais-vendidos'),
+  // params opcionais: { empresa, top }. Sem empresa = ranking geral de mais vendidos.
+  jogosMaisVendidos: (params) => api.get('/relatorios/jogos-mais-vendidos', { params }),
 };
 
 export const publicService = {
