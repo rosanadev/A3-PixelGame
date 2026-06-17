@@ -23,11 +23,22 @@
     </div>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <script>
-      window.addEventListener('load', function () {
-        if (window.VLibras) {
-          new window.VLibras.Widget('https://vlibras.gov.br/app');
+      (function () {
+        function start() {
+          if (window.VLibras && window.VLibras.Widget) {
+            new window.VLibras.Widget('https://vlibras.gov.br/app');
+            return true;
+          }
+          return false;
         }
-      });
+        // O plugin é externo; tenta inicializar por alguns segundos até carregar.
+        if (!start()) {
+          var tentativas = 0;
+          var intervalo = setInterval(function () {
+            if (start() || ++tentativas > 40) clearInterval(intervalo);
+          }, 250);
+        }
+      })();
     </script>
   </body>
 </html>
