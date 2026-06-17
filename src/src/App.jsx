@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 
@@ -25,6 +26,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <AuthProvider>
         <CartProvider>
         <Toaster position="bottom-right" richColors closeButton />
@@ -55,6 +57,7 @@ export default function App() {
         </Routes>
         </CartProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
