@@ -1,0 +1,165 @@
+/* Catálogo "Explore por Categoria" — tema claro, alinhado ao protótipo Figma. */
+.catalog {
+  background: #f5f0fb;
+  min-height: 100vh;
+  padding: 2rem 0 3.5rem;
+}
+
+.catalog-breadcrumb {
+  color: #8b7caa;
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+}
+.catalog-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  color: #261046;
+}
+.catalog-title span { color: #7b2dff; }
+.catalog-subtitle { color: #6b5b8a; margin: 0.25rem 0 1.5rem; }
+
+.catalog-cats-label {
+  display: inline-block;
+  background: #e7defa;
+  color: #6f06bb;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+.catalog-cats {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.75rem;
+  scrollbar-width: thin;
+}
+.catalog-cat {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fff;
+  border: 1px solid #e4dcf3;
+  border-radius: 0.85rem;
+  padding: 0.6rem 0.9rem;
+  min-width: 150px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.catalog-cat:hover { border-color: #c9b6f5; transform: translateY(-2px); }
+.catalog-cat.active { border-color: #7b2dff; box-shadow: 0 4px 14px rgba(123, 45, 255, 0.18); }
+.catalog-cat-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  border-radius: 0.6rem;
+  background: linear-gradient(135deg, #534AB7, #3B2063);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+}
+.catalog-cat-info { display: flex; flex-direction: column; }
+.catalog-cat-name { color: #261046; font-weight: 700; font-size: 0.85rem; font-family: 'Montserrat', sans-serif; }
+.catalog-cat-count { color: #8b7caa; font-size: 0.72rem; }
+
+.catalog-showing { color: #6b5b8a; font-size: 0.9rem; margin: 1.25rem 0 1rem; }
+.catalog-showing strong { color: #7b2dff; }
+
+/* Grid de cards */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.5rem;
+}
+.g-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: #fff;
+  border: 1px solid #ece5f8;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.g-card:hover { transform: translateY(-5px); box-shadow: 0 14px 28px rgba(83, 74, 183, 0.2); }
+.g-card-cover {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.g-card-emoji { font-size: 2.6rem; opacity: 0.55; }
+.g-card-cart {
+  position: absolute;
+  bottom: 0.55rem;
+  right: 0.55rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: #534AB7;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.g-card:hover .g-card-cart { opacity: 1; }
+.g-card-cart:hover { background: #534AB7; color: #fff; transform: scale(1.1); }
+.g-card-remove {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: #e74c3c;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.g-card-remove:hover { background: #e74c3c; color: #fff; transform: scale(1.1); }
+.g-card-body { display: flex; flex-direction: column; gap: 0.3rem; padding: 0 0.15rem 0.25rem; }
+.g-card-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #261046;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.1em;
+}
+.g-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.g-card-cat { color: #8b7caa; font-size: 0.74rem; }
+.g-card-price { color: #7b2dff; font-weight: 800; font-size: 0.82rem; font-family: 'Montserrat', sans-serif; }
+
+.catalog-more { display: flex; justify-content: center; margin-top: 2rem; }
+.catalog-more .btn { background: #fff; }
+
+@media (max-width: 600px) {
+  .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
+}

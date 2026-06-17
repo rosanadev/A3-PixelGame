@@ -38,6 +38,7 @@ export default function Navbar() {
         {/* Links principais */}
         {user && (
           <nav className="navbar__links" aria-label="Navegação principal">
+            <Link to="/catalog" className="navbar__link">Catálogo</Link>
             <Link to="/reviews" className="navbar__link">Minhas avaliações</Link>
           </nav>
         )}
