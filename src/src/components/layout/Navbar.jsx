@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useFontScale } from '../../context/FontScaleContext';
 import CartIcon from '../icons/CartIcon';
 import logoHorizontal from '../../img/login/logo-horizontal.png';
 import './Navbar.css';
@@ -11,6 +12,7 @@ export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
   const { count } = useCart();
   const { theme, toggle } = useTheme();
+  const { scale, increase, decrease, reset, min, max } = useFontScale();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -67,6 +69,38 @@ export default function Navbar() {
 
         {/* Ações */}
         <nav className="navbar__actions" aria-label="Navegação do usuário">
+          {/* Controle de tamanho da fonte (acessibilidade) */}
+          <div className="navbar__fontsize" role="group" aria-label="Tamanho da fonte">
+            <button
+              type="button"
+              className="navbar__font-btn"
+              onClick={decrease}
+              disabled={scale <= min}
+              aria-label="Diminuir tamanho da fonte"
+              title="Diminuir fonte"
+            >
+              A−
+            </button>
+            <button
+              type="button"
+              className="navbar__font-btn"
+              onClick={reset}
+              aria-label="Restaurar tamanho da fonte"
+              title="Tamanho padrão"
+            >
+              A
+            </button>
+            <button
+              type="button"
+              className="navbar__font-btn"
+              onClick={increase}
+              disabled={scale >= max}
+              aria-label="Aumentar tamanho da fonte"
+              title="Aumentar fonte"
+            >
+              A+
+            </button>
+          </div>
           <button
             type="button"
             className="navbar__icon-btn"

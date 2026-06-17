@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { FontScaleProvider } from './context/FontScaleContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 
@@ -27,6 +28,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
+      <FontScaleProvider>
       <AuthProvider>
         <CartProvider>
         <Toaster position="bottom-right" richColors closeButton />
@@ -57,6 +59,7 @@ export default function App() {
         </Routes>
         </CartProvider>
       </AuthProvider>
+      </FontScaleProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

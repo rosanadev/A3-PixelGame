@@ -111,6 +111,27 @@
 }
 .navbar__icon-btn:hover { background: #534AB7; color: white; }
 
+/* Controle de tamanho da fonte */
+.navbar__fontsize { display: inline-flex; align-items: center; gap: 0.15rem; }
+.navbar__font-btn {
+  min-width: 2rem;
+  height: 2.5rem;
+  padding: 0 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #B7B7B720;
+  border: 1px solid #534AB7;
+  color: #534AB7;
+  border-radius: 0.6rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: background 0.2s, color 0.2s;
+}
+.navbar__font-btn:hover:not(:disabled) { background: #534AB7; color: #fff; }
+.navbar__font-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+@media (max-width: 720px) { .navbar__fontsize { display: none; } }
+
 .navbar__cart { position: relative; }
 .navbar__cart-badge {
   position: absolute;
