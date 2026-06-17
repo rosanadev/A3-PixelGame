@@ -39,7 +39,8 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  const isAdmin = user?.fk_perfil === 1;
+  // O token JWT da API carrega `perfil` com o NOME do perfil ("Administrador"/"Cliente").
+  const isAdmin = user?.perfil === 'Administrador';
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading, isAdmin }}>
