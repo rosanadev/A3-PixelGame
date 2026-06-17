@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { gameService, cartService, publicService, categoryService, wishlistService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useOwnedGames } from '../hooks/useOwnedGames';
 import './HomePage.css';
 
 // Paleta de cores para placeholders dos jogos
@@ -22,6 +23,7 @@ function getCardColor(index) {
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { owned } = useOwnedGames();
   const [games, setGames] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -196,22 +198,22 @@ export default function HomePage() {
           {filteredGames.length === 0 ? (
             <p className="home-empty" role="status">Nenhum jogo encontrado.</p>
           ) : (
-            <GameCarousel title="Resultados" games={filteredGames} />
+            <GameCarousel title="Resultados" games={filteredGames} owned={owned} />
           )}
         </>
       ) : (
         <>
-          <GameCarousel title="Popular" games={games} />
-          <GameCarousel title="Novidades" games={novidades} />
-          <GameCarousel title="Em promoção" games={promocoes} />
-          <GameCarousel title="Grátis para jogar" games={gratis} />
+          <GameCarousel title="Popular" games={games} owned={owned} />
+          <GameCarousel title="Novidades" games={novidades} owned={owned} />
+          <GameCarousel title="Em promoção" games={promocoes} owned={owned} />
+          <GameCarousel title="Grátis para jogar" games={gratis} owned={owned} />
         </>
       )}
     </div>
   );
 }
 
-function GameCarousel({ title, games }) {
+function GameCarousel({ title, games, owned }) {
   const ref = useRef(null);
 
   function scroll(dir) {
@@ -229,7 +231,7 @@ function GameCarousel({ title, games }) {
         <button className="home-cats-arrow left" onClick={() => scroll(-1)} aria-label="Anteriores">‹</button>
         <div className="home-popular-track" ref={ref}>
           {games.map((game, idx) => (
-            <GameCard key={game.id ?? idx} game={game} index={idx} />
+            <GameCard key={game.id ?? idx} game={game} index={idx} owned={owned} />
           ))}
         </div>
         <button className="home-cats-arrow right" onClick={() => scroll(1)} aria-label="Próximos">›</button>
@@ -238,7 +240,7 @@ function GameCarousel({ title, games }) {
   );
 }
 
-function GameCard({ game, index }) {
+function GameCard({ game, index, owned }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { refresh: refreshCart } = useCart();
@@ -249,11 +251,20 @@ function GameCard({ game, index }) {
   const title = game.nome || 'Sem título';
   const price = game.preco ?? 0;
   const hasId = !!game.id;
+  const isOwned = !!(owned && game.id && owned.has(game.id));
+
+  function handleGuestClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    toast('Você precisa logar para acessar.');
+    navigate('/login');
+  }
 
   async function handleAddToCart(e) {
     e.preventDefault();
     e.stopPropagation();
     if (!user) { navigate('/login'); return; }
+    if (isOwned) { toast('Você já possui este jogo.'); return; }
     try {
       await cartService.addItem(game.id);
       setAddedToCart(true);
@@ -302,24 +313,42 @@ function GameCard({ game, index }) {
               {faved ? '♥' : '♡'}
             </button>
             <button
-              className={`pop-card-cart ${addedToCart ? 'added' : ''}`}
+              className={`pop-card-cart ${addedToCart || isOwned ? 'added' : ''}`}
               onClick={handleAddToCart}
-              aria-label={`Adicionar ${title} ao carrinho`}
-              title="Adicionar ao carrinho"
+              aria-label={isOwned ? `Você já possui ${title}` : `Adicionar ${title} ao carrinho`}
+              title={isOwned ? 'Você já possui este jogo' : 'Adicionar ao carrinho'}
             >
-              {addedToCart ? '✓' : '🛒'}
+              {addedToCart || isOwned ? '✓' : '🛒'}
             </button>
           </>
         )}
       </div>
       <p className="pop-card-name">{title}</p>
       <p className="pop-card-price">
-        {price === 0 ? 'Grátis' : `R$ ${Number(price).toFixed(2)}`}
+        {isOwned ? 'Adquirido' : price === 0 ? 'Grátis' : `R$ ${Number(price).toFixed(2)}`}
       </p>
     </div>
   );
 
-  return hasId
-    ? <Link to={`/games/${game.id}`} className="pop-card-link" aria-label={`Ver ${title}`}>{cardContent}</Link>
-    : <div className="pop-card-link">{cardContent}</div>;
+  if (user && hasId) {
+    return (
+      <Link to={`/games/${game.id}`} className="pop-card-link" aria-label={`Ver ${title}`}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  // Visitante (não logado) ou jogo sem id: clicar pede login.
+  return (
+    <div
+      className="pop-card-link"
+      role="button"
+      tabIndex={0}
+      onClick={handleGuestClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleGuestClick(e); }}
+      aria-label={`${title} — entre para acessar`}
+    >
+      {cardContent}
+    </div>
+  );
 }

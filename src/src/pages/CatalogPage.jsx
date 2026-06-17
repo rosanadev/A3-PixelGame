@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { gameService, categoryService, cartService, wishlistService } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { useOwnedGames } from '../hooks/useOwnedGames';
 import './CatalogPage.css';
 
 const PAGE_STEP = 14;
@@ -23,8 +24,8 @@ function formatPrice(value) {
 }
 
 export default function CatalogPage() {
-  const navigate = useNavigate();
   const { refresh: refreshCart } = useCart();
+  const { owned } = useOwnedGames();
   const [games, setGames] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,6 +77,7 @@ export default function CatalogPage() {
   async function handleAddToCart(e, game) {
     e.preventDefault();
     e.stopPropagation();
+    if (owned.has(game.id)) { toast('Você já possui este jogo.'); return; }
     try {
       await cartService.addItem(game.id);
       refreshCart();
@@ -168,6 +170,7 @@ export default function CatalogPage() {
               {shown.map((game, idx) => {
                 const colors = CARD_COLORS[idx % CARD_COLORS.length];
                 const categoria = (catName[String(game.fkCategoria ?? game.fk_categoria)] || '').trim();
+                const isOwned = owned.has(game.id);
                 return (
                   <Link
                     to={`/games/${game.id}`}
@@ -190,19 +193,19 @@ export default function CatalogPage() {
                         ♡
                       </button>
                       <button
-                        className="g-card-cart"
+                        className={`g-card-cart ${isOwned ? 'owned' : ''}`}
                         onClick={(e) => handleAddToCart(e, game)}
-                        aria-label={`Adicionar ${game.nome} ao carrinho`}
-                        title="Adicionar ao carrinho"
+                        aria-label={isOwned ? `Você já possui ${game.nome}` : `Adicionar ${game.nome} ao carrinho`}
+                        title={isOwned ? 'Você já possui este jogo' : 'Adicionar ao carrinho'}
                       >
-                        🛒
+                        {isOwned ? '✓' : '🛒'}
                       </button>
                     </div>
                     <div className="g-card-body">
                       <h3 className="g-card-name">{game.nome}</h3>
                       <div className="g-card-meta">
                         {categoria && <span className="g-card-cat">{categoria}</span>}
-                        <span className="g-card-price">{formatPrice(game.preco)}</span>
+                        <span className="g-card-price">{isOwned ? 'Adquirido' : formatPrice(game.preco)}</span>
                       </div>
                     </div>
                   </Link>

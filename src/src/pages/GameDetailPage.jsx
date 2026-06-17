@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   gameService,
@@ -9,6 +9,7 @@ import {
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useOwnedGames } from '../hooks/useOwnedGames';
 import CartPlusIcon from '../components/icons/CartPlusIcon';
 import './Pages.css';
 
@@ -31,6 +32,7 @@ export default function GameDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { refresh: refreshCart } = useCart();
+  const { owned } = useOwnedGames();
 
   const [game, setGame] = useState(null);
   const [reviews, setReviews] = useState({ media: 0, total: 0, lista: [] });
@@ -43,6 +45,9 @@ export default function GameDetailPage() {
   const [nota, setNota] = useState(5);
   const [comentario, setComentario] = useState('');
   const [sending, setSending] = useState(false);
+
+  // Jogo já comprado pelo usuário (não pode comprar de novo).
+  const isOwned = !!(game && owned.has(game.id));
 
   const loadReviews = useCallback(() => {
     reviewService
@@ -85,6 +90,7 @@ export default function GameDetailPage() {
 
   async function handleAddToCart() {
     if (!requireAuth()) return;
+    if (isOwned) { toast('Você já possui este jogo.'); return; }
     try {
       await cartService.addItem(game.id);
       refreshCart();
@@ -96,6 +102,7 @@ export default function GameDetailPage() {
 
   async function handleBuyNow() {
     if (!requireAuth()) return;
+    if (isOwned) { toast('Você já possui este jogo.'); return; }
     setFeedback('');
     setBuying(true);
     try {
@@ -197,16 +204,27 @@ export default function GameDetailPage() {
           {game.desconto > 0 && <span className="badge badge-purple">{game.desconto}% OFF</span>}
 
           <div className="detail-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handleBuyNow}
-              disabled={buying}
-              aria-busy={buying}
-            >
-              {buying ? 'Processando...' : '⚡ Comprar agora'}
-            </button>
-            <button className="btn btn-outline" onClick={handleAddToCart}><CartPlusIcon size={18} /> Adicionar ao carrinho</button>
-            <button className="btn btn-outline" onClick={handleAddToWishlist}>♡ Lista de desejos</button>
+            {isOwned ? (
+              <>
+                <span className="badge badge-purple" style={{ padding: '0.5rem 1rem' }}>
+                  ✓ Você já possui este jogo
+                </span>
+                <Link to="/library" className="btn btn-outline">Ir para a biblioteca</Link>
+              </>
+            ) : (
+              <>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleBuyNow}
+                  disabled={buying}
+                  aria-busy={buying}
+                >
+                  {buying ? 'Processando...' : '⚡ Comprar agora'}
+                </button>
+                <button className="btn btn-outline" onClick={handleAddToCart}><CartPlusIcon size={18} /> Adicionar ao carrinho</button>
+                <button className="btn btn-outline" onClick={handleAddToWishlist}>♡ Lista de desejos</button>
+              </>
+            )}
           </div>
 
           {feedback && <div className="alert alert-info" role="status" aria-live="polite">{feedback}</div>}
