@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -6,6 +6,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { FontScaleProvider } from './context/FontScaleContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -23,6 +24,8 @@ import LibraryPage from './pages/LibraryPage';
 import AdminGamesPage from './pages/admin/AdminGamesPage';
 import AdminCompanyPage from './pages/admin/AdminCompanyPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
+import HelpPage from './pages/HelpPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
   return (
@@ -32,6 +35,7 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
         <Toaster position="bottom-right" richColors closeButton />
+        <ErrorBoundary>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -48,15 +52,17 @@ export default function App() {
             <Route path="/library" element={<PrivateRoute><LibraryPage /></PrivateRoute>} />
             <Route path="/wishlist" element={<PrivateRoute><WishlistPage /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="/ajuda" element={<HelpPage />} />
             <Route path="/reports" element={<AdminRoute><ReportsPage /></AdminRoute>} />
 
             <Route path="/admin/games" element={<AdminRoute><AdminGamesPage /></AdminRoute>} />
             <Route path="/admin/companies" element={<AdminRoute><AdminCompanyPage /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
+        </ErrorBoundary>
         </CartProvider>
       </AuthProvider>
       </FontScaleProvider>

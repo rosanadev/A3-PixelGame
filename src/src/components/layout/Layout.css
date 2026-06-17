@@ -17,3 +17,8 @@
   color: var(--text-muted);
   font-size: 0.85rem;
 }
+.app-footer__link {
+  color: var(--purple-light);
+  font-weight: 600;
+}
+.app-footer__link:hover { text-decoration: underline; }

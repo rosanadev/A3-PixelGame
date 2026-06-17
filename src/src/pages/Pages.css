@@ -161,3 +161,21 @@ textarea.input-field { resize: vertical; min-height: 90px; }
 
 .mt-1 { margin-top: 1rem; }
 .row-between { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+/* FAQ / Ajuda */
+.help-item { border-bottom: 1px solid var(--border-color); padding: 0.5rem 0; }
+.help-item:last-child { border-bottom: none; }
+.help-question {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0.5rem 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.help-question::before { content: '＋'; color: var(--purple-light); font-weight: 700; }
+.help-item[open] .help-question::before { content: '－'; }
+.help-question::-webkit-details-marker { display: none; }
+.help-answer { color: var(--text-secondary); padding: 0.25rem 0 0.75rem 1.5rem; }

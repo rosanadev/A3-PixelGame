@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import './Layout.css';
 
@@ -13,6 +13,9 @@ export default function Layout() {
       <footer className="app-footer">
         <div className="container">
           <p>© {new Date().getFullYear()} PixelGame — Todos os direitos reservados</p>
+          <nav aria-label="Rodapé">
+            <Link to="/ajuda" className="app-footer__link">Ajuda</Link>
+          </nav>
         </div>
       </footer>
     </div>
