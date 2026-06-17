@@ -220,6 +220,33 @@ export default function GameDetailPage() {
       <section className="card mt-1" aria-label="Avaliações">
         <h2>Avaliações ({reviews.total})</h2>
 
+        {reviews.total > 0 && (
+          <div className="rating-summary mt-1">
+            <div className="rating-score">
+              <span className="rating-score-num">{Number(reviews.media).toFixed(1)}</span>
+              <Stars value={reviews.media} />
+              <span className="rating-score-count">Baseado em {reviews.total} avaliações</span>
+            </div>
+            <div className="rating-bars" aria-hidden="true">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = reviews.lista.filter(
+                  (a) => Math.round(Number(a.nota)) === star,
+                ).length;
+                const pct = reviews.total ? Math.round((count / reviews.total) * 100) : 0;
+                return (
+                  <div className="rating-bar-row" key={star}>
+                    <span className="rating-bar-label">{star}★</span>
+                    <span className="rating-bar-track">
+                      <span className="rating-bar-fill" style={{ width: `${pct}%` }} />
+                    </span>
+                    <span className="rating-bar-pct">{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleReviewSubmit} className="mt-1">
           <div className="form-row">
             <div className="form-group" style={{ flex: '0 0 120px' }}>
