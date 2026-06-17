@@ -90,4 +90,19 @@ export const publicService = {
   getJogos: () => api.get('/public/jogos'),
 };
 
+export const userService = {
+  getById: (id) => api.get(`/usuarios/${id}`),
+  // PUT /usuarios/:id espera { nome, dataNascimento (DD/MM/YYYY), fkPerfil }.
+  update: (id, data) => api.put(`/usuarios/${id}`, data),
+  // Jogos comprados pelo usuário, com as chaves de ativação.
+  getMyGames: () => api.get('/usuarios/my/games'),
+  // Lista todos os usuários (admin).
+  getAll: () => api.get('/usuarios'),
+};
+
+export const profileService = {
+  getAll: () => api.get('/profiles'),
+  create: (data) => api.post('/profiles', data),
+};
+
 export default api;
