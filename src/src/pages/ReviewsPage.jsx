@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { reviewService } from '../services/api';
+import { reviewService, gameService } from '../services/api';
 import { usePagination } from '../hooks/usePagination';
 import Pagination from '../components/Pagination';
 import './Pages.css';
@@ -24,15 +24,39 @@ export default function ReviewsPage() {
   const { page, setPage, totalPages, pageItems } = usePagination(reviews, REVIEWS_PER_PAGE);
 
   useEffect(() => {
+    let ativo = true;
     reviewService
-      .getAll()
-      // 204 = ainda não há avaliações cadastradas
-      .then((r) => setReviews(Array.isArray(r.data) ? r.data : []))
-      .catch((err) => {
-        if (err.response?.status === 204) setReviews([]);
-        else setError('Erro ao carregar as avaliações.');
+      .getMine()
+      .then(async (r) => {
+        const lista = Array.isArray(r.data) ? r.data : [];
+        // Cada avaliação traz apenas o fkJogo; buscamos o nome do jogo
+        // (mesmo padrão usado no carrinho).
+        const detalhadas = await Promise.all(
+          lista.map(async (av) => {
+            try {
+              const { data: jogo } = await gameService.getById(av.fkJogo);
+              return { ...av, jogoNome: jogo?.nome };
+            } catch {
+              return av;
+            }
+          }),
+        );
+        if (ativo) setReviews(detalhadas);
       })
-      .finally(() => setLoading(false));
+      // 204 = usuário ainda não avaliou nenhum jogo
+      .catch((err) => {
+        if (err.response?.status === 204) {
+          if (ativo) setReviews([]);
+        } else if (ativo) {
+          setError('Erro ao carregar suas avaliações.');
+        }
+      })
+      .finally(() => {
+        if (ativo) setLoading(false);
+      });
+    return () => {
+      ativo = false;
+    };
   }, []);
 
   if (loading) {
@@ -43,8 +67,8 @@ export default function ReviewsPage() {
     <div className="container page">
       <header className="page-header">
         <div>
-          <h1 className="page-title">Avaliações da comunidade</h1>
-          <p className="page-subtitle">Veja o que os jogadores estão dizendo.</p>
+          <h1 className="page-title">Minhas avaliações</h1>
+          <p className="page-subtitle">As notas e comentários que você publicou.</p>
         </div>
       </header>
 
@@ -53,31 +77,28 @@ export default function ReviewsPage() {
       {reviews.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon" aria-hidden="true">★</span>
-          <p>Ainda não há avaliações cadastradas.</p>
+          <p>Você ainda não avaliou nenhum jogo.</p>
+          <Link to="/" className="btn btn-primary mt-1">Explorar jogos</Link>
         </div>
       ) : (
         <>
-          <section className="card" aria-label="Lista de avaliações">
+          <section className="card" aria-label="Lista das minhas avaliações">
             {pageItems.map((av, idx) => {
-              const jogoNome = av.jogo?.nome || av.jogoNome || av.nomeJogo;
-              const jogoId = av.jogo?.id ?? av.fkJogo ?? av.jogoId;
-              const autor = av.usuario?.nome || av.usuarioNome || av.autor || 'Anônimo';
+              const jogoId = av.fkJogo;
+              const jogoNome = av.jogoNome || (jogoId ? `Jogo #${jogoId}` : 'Jogo');
               return (
                 <div className="review" key={av.id ?? idx}>
                   <div className="review-head">
                     <div>
                       <Stars value={av.nota} />
-                      {jogoNome && (
-                        <span className="item-meta" style={{ marginLeft: '0.5rem' }}>
-                          {jogoId ? (
-                            <Link to={`/games/${jogoId}`}>{jogoNome}</Link>
-                          ) : (
-                            jogoNome
-                          )}
-                        </span>
-                      )}
+                      <span className="item-meta" style={{ marginLeft: '0.5rem' }}>
+                        {jogoId ? (
+                          <Link to={`/games/${jogoId}`}>{jogoNome}</Link>
+                        ) : (
+                          jogoNome
+                        )}
+                      </span>
                     </div>
-                    <span className="item-meta">{autor}</span>
                   </div>
                   <p>{av.comentario || <em>(sem comentário)</em>}</p>
                 </div>

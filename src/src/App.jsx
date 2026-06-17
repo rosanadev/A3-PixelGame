@@ -14,7 +14,6 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import WishlistPage from './pages/WishlistPage';
 import ProfilePage from './pages/ProfilePage';
-import CatalogPage from './pages/CatalogPage';
 import ReviewsPage from './pages/ReviewsPage';
 import ReportsPage from './pages/ReportsPage';
 import AdminGamesPage from './pages/admin/AdminGamesPage';
@@ -33,10 +32,9 @@ export default function App() {
 
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/catalog" element={<CatalogPage />} />
-            <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/games/:id" element={<GameDetailPage />} />
 
+            <Route path="/reviews" element={<PrivateRoute><ReviewsPage /></PrivateRoute>} />
             <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
             <Route path="/checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
             <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />

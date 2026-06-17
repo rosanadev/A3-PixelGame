@@ -36,10 +36,11 @@ export default function Navbar() {
         </Link>
 
         {/* Links principais */}
-        <nav className="navbar__links" aria-label="Navegação principal">
-          <Link to="/catalog" className="navbar__link">Catálogo</Link>
-          <Link to="/reviews" className="navbar__link">Avaliações</Link>
-        </nav>
+        {user && (
+          <nav className="navbar__links" aria-label="Navegação principal">
+            <Link to="/reviews" className="navbar__link">Minhas avaliações</Link>
+          </nav>
+        )}
 
         {/* Busca com lupa */}
         <form className="navbar__search" onSubmit={handleSearch} role="search">
