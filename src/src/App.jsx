@@ -17,9 +17,11 @@ import ProfilePage from './pages/ProfilePage';
 import CatalogPage from './pages/CatalogPage';
 import ReviewsPage from './pages/ReviewsPage';
 import ReportsPage from './pages/ReportsPage';
+import LibraryPage from './pages/LibraryPage';
 import AdminGamesPage from './pages/admin/AdminGamesPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminCompanyPage from './pages/admin/AdminCompanyPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
 
 export default function App() {
   return (
@@ -40,6 +42,7 @@ export default function App() {
             <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
             <Route path="/checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
             <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
+            <Route path="/library" element={<PrivateRoute><LibraryPage /></PrivateRoute>} />
             <Route path="/wishlist" element={<PrivateRoute><WishlistPage /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/reports" element={<AdminRoute><ReportsPage /></AdminRoute>} />
@@ -47,6 +50,7 @@ export default function App() {
             <Route path="/admin/games" element={<AdminRoute><AdminGamesPage /></AdminRoute>} />
             <Route path="/admin/categories" element={<AdminRoute><AdminCategoriesPage /></AdminRoute>} />
             <Route path="/admin/companies" element={<AdminRoute><AdminCompanyPage /></AdminRoute>} />
+            <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

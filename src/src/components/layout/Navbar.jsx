@@ -94,6 +94,7 @@ export default function Navbar() {
 
                 {menuOpen && (
                   <ul className="navbar__dropdown" role="menu">
+                    <li role="menuitem"><Link to="/library" onClick={() => setMenuOpen(false)}>Minha Biblioteca</Link></li>
                     <li role="menuitem"><Link to="/orders" onClick={() => setMenuOpen(false)}>Minhas Compras</Link></li>
                     <li role="menuitem"><Link to="/profile" onClick={() => setMenuOpen(false)}>Meu Perfil</Link></li>
                     {isAdmin && (
@@ -103,6 +104,7 @@ export default function Navbar() {
                         <li role="menuitem"><Link to="/admin/games" onClick={() => setMenuOpen(false)}>Gerenciar Jogos</Link></li>
                         <li role="menuitem"><Link to="/admin/categories" onClick={() => setMenuOpen(false)}>Categorias</Link></li>
                         <li role="menuitem"><Link to="/admin/companies" onClick={() => setMenuOpen(false)}>Empresas</Link></li>
+                        <li role="menuitem"><Link to="/admin/users" onClick={() => setMenuOpen(false)}>Usuários</Link></li>
                         <li role="menuitem"><Link to="/reports" onClick={() => setMenuOpen(false)}>Relatórios</Link></li>
                       </>
                     )}
