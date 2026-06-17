@@ -96,17 +96,17 @@ export default function ReportsPage() {
             <div style={{ width: '100%', height: 360 }}>
               <ResponsiveContainer>
                 <BarChart data={chartData} margin={{ top: 16, right: 16, bottom: 8, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2a2a50" />
-                  <XAxis dataKey="nome" stroke="#a0a0c0" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} stroke="#a0a0c0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e8e0f5" />
+                  <XAxis dataKey="nome" stroke="#9b8db3" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} stroke="#9b8db3" />
                   <Tooltip
                     contentStyle={{
-                      background: '#1a1a35',
-                      border: '1px solid #2a2a50',
+                      background: '#ffffff',
+                      border: '1px solid #e8e0f5',
                       borderRadius: 8,
-                      color: '#fff',
+                      color: '#261046',
                     }}
-                    cursor={{ fill: 'rgba(123,45,255,0.1)' }}
+                    cursor={{ fill: 'rgba(123,45,255,0.08)' }}
                   />
                   <Bar dataKey="total" name="Vendas" fill="#7b2dff" radius={[6, 6, 0, 0]} />
                 </BarChart>
