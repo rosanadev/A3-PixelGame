@@ -11,10 +11,23 @@
     <title>PixelGame</title>
   </head>
   <body>
-    <a href="#main-content" style="position:absolute;left:-9999px;top:1rem;background:#7b2dff;color:#fff;padding:0.5rem 1rem;border-radius:6px;z-index:9999;font-weight:600;">
-      Pular para o conteúdo
-    </a>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- VLibras — tradutor para Língua Brasileira de Sinais (acessibilidade/inclusão) -->
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      window.addEventListener('load', function () {
+        if (window.VLibras) {
+          new window.VLibras.Widget('https://vlibras.gov.br/app');
+        }
+      });
+    </script>
   </body>
 </html>
