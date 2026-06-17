@@ -19,7 +19,6 @@ import ReviewsPage from './pages/ReviewsPage';
 import ReportsPage from './pages/ReportsPage';
 import LibraryPage from './pages/LibraryPage';
 import AdminGamesPage from './pages/admin/AdminGamesPage';
-import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminCompanyPage from './pages/admin/AdminCompanyPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 
@@ -48,7 +47,6 @@ export default function App() {
             <Route path="/reports" element={<AdminRoute><ReportsPage /></AdminRoute>} />
 
             <Route path="/admin/games" element={<AdminRoute><AdminGamesPage /></AdminRoute>} />
-            <Route path="/admin/categories" element={<AdminRoute><AdminCategoriesPage /></AdminRoute>} />
             <Route path="/admin/companies" element={<AdminRoute><AdminCompanyPage /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
 

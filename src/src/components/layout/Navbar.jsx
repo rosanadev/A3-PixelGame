@@ -102,7 +102,6 @@ export default function Navbar() {
                         <li className="navbar__dropdown-divider" role="separator" />
                         <li className="navbar__dropdown-label">Admin</li>
                         <li role="menuitem"><Link to="/admin/games" onClick={() => setMenuOpen(false)}>Gerenciar Jogos</Link></li>
-                        <li role="menuitem"><Link to="/admin/categories" onClick={() => setMenuOpen(false)}>Categorias</Link></li>
                         <li role="menuitem"><Link to="/admin/companies" onClick={() => setMenuOpen(false)}>Empresas</Link></li>
                         <li role="menuitem"><Link to="/admin/users" onClick={() => setMenuOpen(false)}>Usuários</Link></li>
                         <li role="menuitem"><Link to="/reports" onClick={() => setMenuOpen(false)}>Relatórios</Link></li>
