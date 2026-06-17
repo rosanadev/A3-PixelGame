@@ -11,7 +11,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const EMPTY = {
   nome: '',
   descricao: '',
-  ano: '',
+  ano: String(CURRENT_YEAR),
   preco: '',
   desconto: '',
   fkCategoria: '',
@@ -305,10 +305,18 @@ export default function AdminGamesPage() {
               <input
                 id="ano"
                 name="ano"
-                type="number"
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="Ex.: 2024"
                 className={`input-field ${fieldErrors.ano ? 'has-error' : ''}`}
                 value={form.ano}
-                onChange={handleChange}
+                onChange={(e) => {
+                  // Aceita apenas dígitos, permitindo digitar o ano livremente.
+                  const apenasDigitos = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setForm((prev) => ({ ...prev, ano: apenasDigitos }));
+                  setFieldErrors((prev) => (prev.ano ? { ...prev, ano: undefined } : prev));
+                }}
                 aria-invalid={!!fieldErrors.ano}
               />
               {fieldErrors.ano && <span className="field-error" role="alert">{fieldErrors.ano}</span>}
