@@ -40,12 +40,25 @@ export default function WishlistPage() {
     return map;
   }, [categories]);
 
-  async function handleRemove(e, jogoId) {
+  async function handleRemove(e, game) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      await wishlistService.remove(jogoId);
-      setGames((prev) => prev.filter((g) => g.id !== jogoId));
+      await wishlistService.remove(game.id);
+      setGames((prev) => prev.filter((g) => g.id !== game.id));
+      toast(`${game.nome} removido dos favoritos.`, {
+        action: {
+          label: 'Desfazer',
+          onClick: async () => {
+            try {
+              await wishlistService.add(game.id);
+              setGames((prev) => (prev.some((g) => g.id === game.id) ? prev : [...prev, game]));
+            } catch {
+              toast.error('Não foi possível desfazer.');
+            }
+          },
+        },
+      });
     } catch {
       setError('Não foi possível remover o item.');
     }
@@ -105,7 +118,7 @@ export default function WishlistPage() {
                       <span className="g-card-emoji">🎮</span>
                       <button
                         className="g-card-remove"
-                        onClick={(e) => handleRemove(e, game.id)}
+                        onClick={(e) => handleRemove(e, game)}
                         aria-label={`Remover ${game.nome} dos favoritos`}
                         title="Remover dos favoritos"
                       >
