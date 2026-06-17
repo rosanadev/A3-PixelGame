@@ -14,8 +14,6 @@ const METODOS = [
   { id: 'cartao', label: '💳 Cartão' },
 ];
 
-const EMPTY_CARD = { numero: '', nome: '', validade: '', cvv: '' };
-
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { refresh: refreshCart } = useCart();
@@ -25,7 +23,6 @@ export default function CheckoutPage() {
   const [processing, setProcessing] = useState(false);
 
   const [metodo, setMetodo] = useState('pix');
-  const [cartao, setCartao] = useState(EMPTY_CARD);
 
   const loadCart = useCallback(async () => {
     setLoading(true);
@@ -59,20 +56,11 @@ export default function CheckoutPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-
-    // Validação simples dos campos do cartão (pagamento simulado na API).
-    if (metodo === 'cartao') {
-      if (!cartao.numero.trim() || !cartao.nome.trim() || !cartao.validade.trim() || !cartao.cvv.trim()) {
-        setError('Preencha todos os dados do cartão.');
-        return;
-      }
-    }
-
     setProcessing(true);
     try {
-      // 1. Simula o pagamento (a API aceita cartao/boleto/pix)
-      const dados = metodo === 'cartao' ? cartao : {};
-      await orderService.pay(metodo, dados);
+      // 1. Simula o pagamento. A API (cartao/boleto/pix) apenas confirma e
+      // ignora quaisquer dados, então não pedimos número de cartão.
+      await orderService.pay(metodo, {});
       // 2. Finaliza a venda (gera chaves e fecha o carrinho)
       const { data } = await orderService.checkout();
       if (data?.venda) {
@@ -142,53 +130,9 @@ export default function CheckoutPage() {
             </p>
           )}
           {metodo === 'cartao' && (
-            <div className="mt-1">
-              <p className="page-subtitle">Dados do cartão (pagamento simulado).</p>
-              <div className="form-group">
-                <label htmlFor="card-num">Número do cartão</label>
-                <input
-                  id="card-num"
-                  className="input-field"
-                  inputMode="numeric"
-                  placeholder="0000 0000 0000 0000"
-                  value={cartao.numero}
-                  onChange={(e) => setCartao((c) => ({ ...c, numero: e.target.value }))}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="card-name">Nome impresso no cartão</label>
-                <input
-                  id="card-name"
-                  className="input-field"
-                  placeholder="Como está no cartão"
-                  value={cartao.nome}
-                  onChange={(e) => setCartao((c) => ({ ...c, nome: e.target.value }))}
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="card-exp">Validade</label>
-                  <input
-                    id="card-exp"
-                    className="input-field"
-                    placeholder="MM/AA"
-                    value={cartao.validade}
-                    onChange={(e) => setCartao((c) => ({ ...c, validade: e.target.value }))}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="card-cvv">CVV</label>
-                  <input
-                    id="card-cvv"
-                    className="input-field"
-                    inputMode="numeric"
-                    placeholder="123"
-                    value={cartao.cvv}
-                    onChange={(e) => setCartao((c) => ({ ...c, cvv: e.target.value }))}
-                  />
-                </div>
-              </div>
-            </div>
+            <p className="page-subtitle mt-1">
+              Ao confirmar, o pagamento no cartão seria processado. (pagamento simulado)
+            </p>
           )}
         </div>
 
