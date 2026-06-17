@@ -117,11 +117,13 @@ export default function Navbar() {
               <Link
                 to="/cart"
                 className="navbar__icon-btn navbar__cart"
-                aria-label={count > 0 ? 'Carrinho (com itens)' : 'Carrinho'}
+                aria-label={count > 0 ? `Carrinho com ${count} ${count === 1 ? 'item' : 'itens'}` : 'Carrinho vazio'}
                 title="Carrinho"
               >
                 <CartIcon size={22} />
-                {count > 0 && <span className="navbar__cart-badge" aria-hidden="true" />}
+                {count > 0 && (
+                  <span className="navbar__cart-badge" aria-hidden="true">{count}</span>
+                )}
               </Link>
 
               <div className="navbar__user" onClick={() => setMenuOpen(!menuOpen)}>
