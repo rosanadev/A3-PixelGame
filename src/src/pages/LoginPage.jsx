@@ -79,13 +79,8 @@ export default function LoginPage() {
       <main className="login-main">
         <div className="login-container">
 
-          {/* Coluna esquerda — grade decorativa + logo */}
+          {/* Coluna esquerda — logo */}
           <div className="login-col-logo">
-            <div className="login-grid" aria-hidden="true">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <span key={i} className="login-grid-cell" />
-              ))}
-            </div>
             <img src={logoVertical} alt="PixelGame logo" className="login-main-logo" />
           </div>
 

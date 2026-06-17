@@ -84,33 +84,12 @@
 .login-col-logo {
   width: 40%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
 }
-
-/* Grade 3x3 decorativa (alinha ao protótipo Figma) */
-.login-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  width: min(70%, 320px);
-}
-.login-grid-cell {
-  aspect-ratio: 1 / 1;
-  border-radius: 1.1rem;
-  background: rgba(123, 45, 255, 0.18);
-}
-.login-grid-cell:nth-child(3n + 1) { background: rgba(123, 45, 255, 0.14); }
-.login-grid-cell:nth-child(2),
-.login-grid-cell:nth-child(4),
-.login-grid-cell:nth-child(9) { background: rgba(123, 45, 255, 0.42); }
-.login-grid-cell:nth-child(5),
-.login-grid-cell:nth-child(7) { background: rgba(123, 45, 255, 0.55); }
 
 .login-main-logo {
-  max-width: 60%;
+  max-width: 92%;
   object-fit: contain;
 }
 
