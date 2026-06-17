@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { gameService, categoryService, cartService } from '../services/api';
+import { gameService, categoryService, cartService, wishlistService } from '../services/api';
 import { useCart } from '../context/CartContext';
 import './CatalogPage.css';
 
@@ -82,6 +82,21 @@ export default function CatalogPage() {
       toast.success(`${game.nome} adicionado ao carrinho!`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Não foi possível adicionar ao carrinho.');
+    }
+  }
+
+  async function handleAddToWishlist(e, game) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await wishlistService.add(game.id);
+      toast.success(`${game.nome} adicionado aos favoritos!`);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        toast(`${game.nome} já está nos favoritos.`);
+      } else {
+        toast.error(err.response?.data?.error || 'Não foi possível favoritar.');
+      }
     }
   }
 
@@ -166,6 +181,14 @@ export default function CatalogPage() {
                       aria-hidden="true"
                     >
                       <span className="g-card-emoji">🎮</span>
+                      <button
+                        className="g-card-fav"
+                        onClick={(e) => handleAddToWishlist(e, game)}
+                        aria-label={`Adicionar ${game.nome} aos favoritos`}
+                        title="Adicionar aos favoritos"
+                      >
+                        ♡
+                      </button>
                       <button
                         className="g-card-cart"
                         onClick={(e) => handleAddToCart(e, game)}
