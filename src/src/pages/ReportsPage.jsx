@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   BarChart,
   Bar,
@@ -8,17 +8,30 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { reportService } from '../services/api';
+import { reportService, companyService } from '../services/api';
 import './Pages.css';
 
 export default function ReportsPage() {
   const [data, setData] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [empresa, setEmpresa] = useState(''); // '' = ranking geral
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Lista de empresas para o filtro "mais vendidos por empresa".
   useEffect(() => {
+    companyService
+      .getAll()
+      .then((r) => setCompanies(Array.isArray(r.data) ? r.data : []))
+      .catch(() => setCompanies([]));
+  }, []);
+
+  const loadReport = useCallback(() => {
+    setLoading(true);
+    setError('');
+    const params = empresa ? { empresa } : undefined;
     reportService
-      .jogosMaisVendidos()
+      .jogosMaisVendidos(params)
       // 204 = sem dados suficientes
       .then((r) => setData(Array.isArray(r.data) ? r.data : []))
       .catch((err) => {
@@ -26,7 +39,11 @@ export default function ReportsPage() {
         else setError('Erro ao carregar o relatório.');
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [empresa]);
+
+  useEffect(() => {
+    loadReport();
+  }, [loadReport]);
 
   const chartData = data.map((d) => ({
     nome: d.nome,
@@ -34,19 +51,41 @@ export default function ReportsPage() {
     total: Number(d.total) || 0,
   }));
 
-  if (loading) {
-    return <div className="page-loading"><div className="spinner" /></div>;
-  }
+  const empresaNome = empresa
+    ? companies.find((c) => String(c.id) === String(empresa))?.nome
+    : null;
 
   return (
     <div className="container page">
       <header className="page-header">
-        <h1 className="page-title">Jogos mais vendidos</h1>
+        <div>
+          <h1 className="page-title">
+            {empresaNome ? `Jogos mais vendidos — ${empresaNome}` : 'Jogos mais vendidos'}
+          </h1>
+          <p className="page-subtitle">Ranking de vendas por jogo.</p>
+        </div>
+        <div className="form-group" style={{ margin: 0, minWidth: 220 }}>
+          <label htmlFor="report-empresa">Empresa</label>
+          <select
+            id="report-empresa"
+            className="input-field"
+            value={empresa}
+            onChange={(e) => setEmpresa(e.target.value)}
+            aria-label="Filtrar relatório por empresa"
+          >
+            <option value="">Todas as empresas (geral)</option>
+            {companies.map((c) => (
+              <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
+        </div>
       </header>
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {chartData.length === 0 ? (
+      {loading ? (
+        <div className="page-loading"><div className="spinner" /></div>
+      ) : chartData.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon" aria-hidden="true">📊</span>
           <p>Ainda não há dados de vendas suficientes para gerar o relatório.</p>
