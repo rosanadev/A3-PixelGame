@@ -122,6 +122,7 @@
 }
 .g-card:hover .g-card-cart { opacity: 1; }
 .g-card-cart:hover { background: #534AB7; color: #fff; transform: scale(1.1); }
+.g-card-cart.owned { opacity: 1; background: #1f9d55; color: #fff; }
 .g-card-remove {
   position: absolute;
   top: 0.55rem;
@@ -142,8 +143,8 @@
 .g-card-remove:hover { background: #e74c3c; color: #fff; transform: scale(1.1); }
 .g-card-fav {
   position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
+  bottom: 0.55rem;
+  left: 0.55rem;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;

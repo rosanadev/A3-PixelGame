@@ -212,11 +212,11 @@
 .pop-card-cart:hover { background: #534AB7; color: white; transform: scale(1.1); }
 .pop-card-cart.added { background: #1f9d55; color: white; opacity: 1; }
 
-/* Favoritar (coração) — aparece no hover, ao lado do carrinho */
+/* Favoritar (coração) — aparece no hover, no canto inferior esquerdo */
 .pop-card-fav {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
+  bottom: 0.6rem;
+  left: 0.6rem;
   width: 2.1rem;
   height: 2.1rem;
   border-radius: 50%;
