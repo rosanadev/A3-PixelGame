@@ -8,6 +8,12 @@ import './RegisterPage.css';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+
+  function handleSearch(e) {
+    e.preventDefault();
+    if (search.trim()) navigate(`/?q=${encodeURIComponent(search.trim())}`);
+  }
 
   const [form, setForm] = useState({
     nome: '',
@@ -68,15 +74,23 @@ export default function RegisterPage() {
           <Link to="/" aria-label="PixelGame - Página inicial">
             <img src={logoHorizontal} alt="PixelGame" className="login-nav-logo" />
           </Link>
-          <form className="login-nav-search" role="search">
-            <label htmlFor="nav-search" className="sr-only">Pesquisar jogo</label>
-            <input
-              id="nav-search"
-              type="text"
-              placeholder="Pesquisar jogo..."
-              className="login-search-bar"
-              aria-label="Pesquisar jogo"
-            />
+          <form className="login-nav-search" role="search" onSubmit={handleSearch}>
+            <label htmlFor="reg-nav-search" className="sr-only">Pesquisar jogo</label>
+            <div className="login-search-wrapper">
+              <svg className="login-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                id="reg-nav-search"
+                type="search"
+                placeholder="Pesquisar jogo..."
+                className="login-search-bar"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Pesquisar jogo"
+              />
+            </div>
           </form>
           <div className="login-nav-actions">
             <Link to="/login" className="login-btn-purple">Entrar</Link>

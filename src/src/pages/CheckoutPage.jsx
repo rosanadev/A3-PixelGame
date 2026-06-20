@@ -11,6 +11,7 @@ function formatPrice(value) {
 const METODOS = [
   { id: 'pix', label: '⚡ Pix' },
   { id: 'boleto', label: '🧾 Boleto' },
+  { id: 'cartao', label: '💳 Cartão' },
 ];
 
 export default function CheckoutPage() {
@@ -57,7 +58,8 @@ export default function CheckoutPage() {
     setError('');
     setProcessing(true);
     try {
-      // 1. Simula o pagamento
+      // 1. Simula o pagamento. A API (cartao/boleto/pix) apenas confirma e
+      // ignora quaisquer dados, então não pedimos número de cartão.
       await orderService.pay(metodo, {});
       // 2. Finaliza a venda (gera chaves e fecha o carrinho)
       const { data } = await orderService.checkout();
@@ -125,6 +127,11 @@ export default function CheckoutPage() {
           {metodo === 'boleto' && (
             <p className="page-subtitle mt-1">
               Ao confirmar, um boleto seria gerado. (pagamento simulado)
+            </p>
+          )}
+          {metodo === 'cartao' && (
+            <p className="page-subtitle mt-1">
+              Ao confirmar, o pagamento no cartão seria processado. (pagamento simulado)
             </p>
           )}
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { orderService, userService } from '../services/api';
+import { orderService } from '../services/api';
 import './Pages.css';
 
 function formatPrice(value) {
@@ -16,21 +16,14 @@ function formatDate(value) {
 export default function OrderHistoryPage() {
   const location = useLocation();
   const [orders, setOrders] = useState([]);
-  const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(!!location.state?.sucesso);
 
   useEffect(() => {
-    Promise.all([
-      orderService.getHistory().then((r) => r.data || []).catch(() => []),
-      // 204 (sem jogos) cai no catch e vira lista vazia
-      userService.getMyGames().then((r) => r.data || []).catch(() => []),
-    ])
-      .then(([vendas, jogos]) => {
-        setOrders(Array.isArray(vendas) ? vendas : []);
-        setGames(Array.isArray(jogos) ? jogos : []);
-      })
+    orderService
+      .getHistory()
+      .then((r) => setOrders(Array.isArray(r.data) ? r.data : []))
       .catch(() => setError('Erro ao carregar suas compras.'))
       .finally(() => setLoading(false));
   }, []);
@@ -53,7 +46,6 @@ export default function OrderHistoryPage() {
       )}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {/* Histórico de pedidos */}
       <section className="card" aria-label="Histórico de pedidos">
         <h2>Histórico de pedidos</h2>
         {orders.length === 0 ? (
@@ -80,29 +72,6 @@ export default function OrderHistoryPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-      </section>
-
-      {/* Biblioteca / chaves de ativação */}
-      <section className="card mt-1" aria-label="Minha biblioteca">
-        <h2>Minha biblioteca</h2>
-        {games.length === 0 ? (
-          <p className="page-subtitle mt-1">Nenhum jogo adquirido ainda.</p>
-        ) : (
-          <div className="item-list mt-1">
-            {games.map((g, idx) => (
-              <div className="item-row" key={g.jogo?.id ?? idx} style={{ padding: '0.5rem 0' }}>
-                <div className="item-thumb" aria-hidden="true">🎮</div>
-                <div className="item-info">
-                  <div className="item-title">{g.jogo?.nome || 'Jogo'}</div>
-                  <div className="item-meta">
-                    Chave:{' '}
-                    <code>{g.chaveAtivacao || 'pendente'}</code>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         )}
       </section>

@@ -8,7 +8,7 @@
 }
 
 .login-header {
-  height: 7rem;
+  height: 64px;
   background: white;
   display: flex;
   align-items: center;
@@ -37,21 +37,8 @@
   max-width: 400px;
 }
 
-.login-search-bar {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid #BAACBC;
-  padding: 0.5rem 1.2rem;
-  background: #F3EDF7;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.9rem;
-  color: #261046;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.login-search-bar:focus {
-  border-color: #534AB7;
-}
+
+
 
 .login-nav-actions {
   display: flex;
@@ -102,7 +89,7 @@
 }
 
 .login-main-logo {
-  max-width: 100%;
+  max-width: 92%;
   object-fit: contain;
 }
 
@@ -203,42 +190,7 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.login-line {
-  height: 1px;
-  width: 100%;
-  background: #261046;
-  margin-top: 2rem;
-}
 
-.login-or {
-  margin: 0.75rem 0 0.5rem;
-  font-size: 0.9rem;
-  color: #261046;
-}
-
-.login-social {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.login-social-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  background: #3B2063;
-  color: white;
-  border-radius: 0.5rem;
-  padding: 0.85rem 0;
-  width: 50%;
-  border: none;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.2s, opacity 0.2s;
-}
 .login-social-button:hover:not(:disabled) {
   background: #261046;
 }
@@ -278,3 +230,31 @@
     display: none;
   }
 }
+
+/* Busca com lupa */
+.login-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.login-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  width: 16px;
+  height: 16px;
+  color: #BAACBC;
+  pointer-events: none;
+}
+.login-search-bar {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #BAACBC;
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  background: #F3EDF7;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  color: #261046;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.login-search-bar:focus { border-color: #534AB7; }

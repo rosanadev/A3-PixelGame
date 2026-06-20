@@ -7,14 +7,12 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Injeta o token JWT em todas as requisições automaticamente
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('pixelgame_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Redireciona para login se token expirar (401)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -26,14 +24,14 @@ api.interceptors.response.use(
   }
 );
 
-// AUTH 
 export const authService = {
   login: (email, senha) => api.post('/auth/login', { email, senha }),
   register: (data) => api.post('/auth/register', data),
-  changePassword: (data) => api.put('/auth/change-password', data),
+  // A API espera { currentPassword, newPassword }.
+  changePassword: ({ senhaAtual, novaSenha }) =>
+    api.put('/auth/change-password', { currentPassword: senhaAtual, newPassword: novaSenha }),
 };
 
-// JOGOS 
 export const gameService = {
   getAll: (params) => api.get('/jogos', { params }),
   getById: (id) => api.get(`/jogos/${id}`),
@@ -42,13 +40,11 @@ export const gameService = {
   remove: (id) => api.delete(`/jogos/${id}`),
 };
 
-// CATEGORIAS 
 export const categoryService = {
   getAll: () => api.get('/categorias'),
   getById: (id) => api.get(`/categorias/${id}`),
 };
 
-// EMPRESAS 
 export const companyService = {
   getAll: () => api.get('/empresas'),
   getById: (id) => api.get(`/empresas/${id}`),
@@ -57,50 +53,56 @@ export const companyService = {
   remove: (id) => api.delete(`/empresas/${id}`),
 };
 
-// CARRINHO 
 export const cartService = {
   get: () => api.get('/carrinho/ativo'),
   addItem: (jogoId) => api.post('/carrinho/add', { jogoId }),
   removeItem: (gameId) => api.delete(`/carrinho/${gameId}`),
 };
 
-// VENDAS
 export const orderService = {
   checkout: () => api.post('/vendas/checkout'),
   pay: (metodo, dados) => api.post('/vendas/pay', { metodo, dados }),
   getHistory: () => api.get('/vendas/'),
 };
 
-// USUÁRIO (jogos comprados / chaves de ativação)
-export const userService = {
-  getMyGames: () => api.get('/usuarios/my/games'),
-};
-
-// LISTA DE DESEJOS
 export const wishlistService = {
   get: () => api.get('/lista-desejo'),
   add: (jogoId) => api.post('/lista-desejo', { jogoId }),
   remove: (jogoId) => api.delete('/lista-desejo', { data: { jogoId } }),
 };
 
-// AVALIAÇÕES
 export const reviewService = {
-  getAll: () => api.get('/avaliacoes'),
   getMedia: (jogoId) => api.get(`/avaliacoes/media/${jogoId}`),
+  // GET /avaliacoes retorna apenas as avaliações do próprio usuário logado.
+  getMine: () => api.get('/avaliacoes'),
   create: (jogoId, nota, comentario) =>
     api.post('/avaliacoes', { jogoId, nota, comentario }),
   update: (jogoId, nota, comentario) =>
     api.put('/avaliacoes', { jogoId, nota, comentario }),
 };
 
-// RELATÓRIOS 
 export const reportService = {
-  jogosMaisVendidos: () => api.get('/relatorios/jogos-mais-vendidos'),
+  // params opcionais: { empresa, top }. Sem empresa = ranking geral de mais vendidos.
+  jogosMaisVendidos: (params) => api.get('/relatorios/jogos-mais-vendidos', { params }),
 };
 
-// PÚBLICO (sem login)
 export const publicService = {
   getJogos: () => api.get('/public/jogos'),
+};
+
+export const userService = {
+  getById: (id) => api.get(`/usuarios/${id}`),
+  // PUT /usuarios/:id espera { nome, dataNascimento (DD/MM/YYYY), fkPerfil }.
+  update: (id, data) => api.put(`/usuarios/${id}`, data),
+  // Jogos comprados pelo usuário, com as chaves de ativação.
+  getMyGames: () => api.get('/usuarios/my/games'),
+  // Lista todos os usuários (admin).
+  getAll: () => api.get('/usuarios'),
+};
+
+export const profileService = {
+  getAll: () => api.get('/profiles'),
+  create: (data) => api.post('/profiles', data),
 };
 
 export default api;

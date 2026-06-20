@@ -2,12 +2,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useFontScale } from '../../context/FontScaleContext';
 import CartIcon from '../icons/CartIcon';
+import logoHorizontal from '../../img/login/logo-horizontal.png';
 import './Navbar.css';
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
   const { count } = useCart();
+  const { theme, toggle } = useTheme();
+  const { scale, increase, decrease, reset, min, max } = useFontScale();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -28,70 +33,125 @@ export default function Navbar() {
   return (
     <header className="navbar" role="banner">
       <div className="container navbar__inner">
-        {/* Logo */}
+
+        {/* Logo real do projeto */}
         <Link to="/" className="navbar__logo" aria-label="PixelGame - Página inicial">
-          <span className="navbar__logo-text">Pixel<span>Game</span></span>
+          <img src={logoHorizontal} alt="PixelGame" className="navbar__logo-img" />
         </Link>
 
-        {/* Busca */}
+        {/* Links principais */}
+        {user && (
+          <nav className="navbar__links" aria-label="Navegação principal">
+            <Link to="/catalog" className="navbar__link">Catálogo</Link>
+            <Link to="/reviews" className="navbar__link">Minhas avaliações</Link>
+          </nav>
+        )}
+
+        {/* Busca com lupa */}
         <form className="navbar__search" onSubmit={handleSearch} role="search">
           <label htmlFor="navbar-search" className="sr-only">Buscar jogos</label>
-          <input
-            id="navbar-search"
-            type="search"
-            className="navbar__search-input"
-            placeholder="Buscar jogo..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar jogos"
-          />
-          <button type="submit" className="navbar__search-btn" aria-label="Executar busca">
-            🔍
-          </button>
+          <div className="navbar__search-wrapper">
+            <svg className="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              id="navbar-search"
+              type="search"
+              className="navbar__search-input"
+              placeholder="Buscar jogo..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Buscar jogos"
+            />
+          </div>
         </form>
 
         {/* Ações */}
         <nav className="navbar__actions" aria-label="Navegação do usuário">
+          {/* Controle de tamanho da fonte (acessibilidade) */}
+          <div className="navbar__fontsize" role="group" aria-label="Tamanho da fonte">
+            <button
+              type="button"
+              className="navbar__font-btn"
+              onClick={decrease}
+              disabled={scale <= min}
+              aria-label="Diminuir tamanho da fonte"
+              title="Diminuir fonte"
+            >
+              A−
+            </button>
+            <button
+              type="button"
+              className="navbar__font-btn"
+              onClick={reset}
+              aria-label="Restaurar tamanho da fonte"
+              title="Tamanho padrão"
+            >
+              A
+            </button>
+            <button
+              type="button"
+              className="navbar__font-btn"
+              onClick={increase}
+              disabled={scale >= max}
+              aria-label="Aumentar tamanho da fonte"
+              title="Aumentar fonte"
+            >
+              A+
+            </button>
+          </div>
+          <button
+            type="button"
+            className="navbar__icon-btn"
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            aria-pressed={theme === 'dark'}
+            title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           {user ? (
             <>
-              <Link to="/wishlist" className="navbar__icon-btn" aria-label="Lista de desejos" title="Lista de desejos">
-                ♡
-              </Link>
+              <Link to="/wishlist" className="navbar__icon-btn" aria-label="Lista de desejos" title="Lista de desejos">♡</Link>
               <Link
                 to="/cart"
                 className="navbar__icon-btn navbar__cart"
-                aria-label={count > 0 ? 'Carrinho de compras (com itens)' : 'Carrinho de compras'}
+                aria-label={count > 0 ? `Carrinho com ${count} ${count === 1 ? 'item' : 'itens'}` : 'Carrinho vazio'}
                 title="Carrinho"
               >
                 <CartIcon size={22} />
-                {count > 0 && <span className="navbar__cart-badge" aria-hidden="true" />}
+                {count > 0 && (
+                  <span className="navbar__cart-badge" aria-hidden="true">{count}</span>
+                )}
               </Link>
 
-              {/* Menu do usuário */}
               <div className="navbar__user" onClick={() => setMenuOpen(!menuOpen)}>
                 <button
                   className="navbar__user-btn"
                   aria-haspopup="true"
                   aria-expanded={menuOpen}
-                  aria-label={`Menu do usuário: ${user.nome || user.name}`}
+                  aria-label={`Menu do usuário: ${user.nome}`}
                 >
                   <span className="navbar__avatar" aria-hidden="true">
-                    {(user.nome || user.name || 'U')[0].toUpperCase()}
+                    {(user.nome || 'U')[0].toUpperCase()}
                   </span>
-                  <span className="navbar__username">{user.nome || user.name}</span>
+                  <span className="navbar__username">{user.nome}</span>
                   <span aria-hidden="true">▾</span>
                 </button>
 
                 {menuOpen && (
                   <ul className="navbar__dropdown" role="menu">
+                    <li role="menuitem"><Link to="/library" onClick={() => setMenuOpen(false)}>Minha Biblioteca</Link></li>
                     <li role="menuitem"><Link to="/orders" onClick={() => setMenuOpen(false)}>Minhas Compras</Link></li>
+                    <li role="menuitem"><Link to="/profile" onClick={() => setMenuOpen(false)}>Meu Perfil</Link></li>
                     {isAdmin && (
                       <>
                         <li className="navbar__dropdown-divider" role="separator" />
                         <li className="navbar__dropdown-label">Admin</li>
                         <li role="menuitem"><Link to="/admin/games" onClick={() => setMenuOpen(false)}>Gerenciar Jogos</Link></li>
-                        <li role="menuitem"><Link to="/admin/categories" onClick={() => setMenuOpen(false)}>Categorias</Link></li>
                         <li role="menuitem"><Link to="/admin/companies" onClick={() => setMenuOpen(false)}>Empresas</Link></li>
+                        <li role="menuitem"><Link to="/admin/users" onClick={() => setMenuOpen(false)}>Usuários</Link></li>
                         <li role="menuitem"><Link to="/reports" onClick={() => setMenuOpen(false)}>Relatórios</Link></li>
                       </>
                     )}
@@ -104,18 +164,15 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <Link to="/login" className="btn btn-primary">Entrar</Link>
+            <Link to="/login" className="navbar__btn-purple">Entrar</Link>
           )}
 
-          {/* Hamburger mobile */}
           <button
             className="navbar__hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Abrir menu"
             aria-expanded={menuOpen}
-          >
-            ☰
-          </button>
+          >☰</button>
         </nav>
       </div>
     </header>

@@ -8,15 +8,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Ao montar, verifica se já tem sessão salva
   useEffect(() => {
     const token = localStorage.getItem('pixelgame_token');
-
     if (token) {
       try {
         const decoded = jwtDecode(token);
         if (decoded.exp * 1000 > Date.now()) {
-          // decoded já tem: { id, nome, perfil, iat, exp }
           setUser(decoded);
         } else {
           localStorage.removeItem('pixelgame_token');
@@ -31,7 +28,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, senha) => {
     const response = await authService.login(email, senha);
     const { token } = response.data;
-    const decoded = jwtDecode(token); // { id, nome, perfil, iat, exp }
+    const decoded = jwtDecode(token);
     localStorage.setItem('pixelgame_token', token);
     setUser(decoded);
     return decoded;
@@ -42,7 +39,8 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  const isAdmin = user?.perfil === 'Administrador' || user?.perfil === 'admin';
+  // O token JWT da API carrega `perfil` com o NOME do perfil ("Administrador"/"Cliente").
+  const isAdmin = user?.perfil === 'Administrador';
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading, isAdmin }}>

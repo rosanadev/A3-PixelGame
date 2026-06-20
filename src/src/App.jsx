@@ -1,9 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { FontScaleProvider } from './context/FontScaleContext';
 import { PrivateRoute, AdminRoute } from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -13,17 +16,26 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import WishlistPage from './pages/WishlistPage';
+import ProfilePage from './pages/ProfilePage';
+import CatalogPage from './pages/CatalogPage';
+import ReviewsPage from './pages/ReviewsPage';
 import ReportsPage from './pages/ReportsPage';
+import LibraryPage from './pages/LibraryPage';
 import AdminGamesPage from './pages/admin/AdminGamesPage';
-import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminCompanyPage from './pages/admin/AdminCompanyPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import HelpPage from './pages/HelpPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
+      <FontScaleProvider>
       <AuthProvider>
         <CartProvider>
         <Toaster position="bottom-right" richColors closeButton />
+        <ErrorBoundary>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -32,21 +44,29 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/games/:id" element={<GameDetailPage />} />
 
+            <Route path="/catalog" element={<PrivateRoute><CatalogPage /></PrivateRoute>} />
+            <Route path="/reviews" element={<PrivateRoute><ReviewsPage /></PrivateRoute>} />
             <Route path="/cart" element={<PrivateRoute><CartPage /></PrivateRoute>} />
             <Route path="/checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />
             <Route path="/orders" element={<PrivateRoute><OrderHistoryPage /></PrivateRoute>} />
+            <Route path="/library" element={<PrivateRoute><LibraryPage /></PrivateRoute>} />
             <Route path="/wishlist" element={<PrivateRoute><WishlistPage /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="/ajuda" element={<HelpPage />} />
             <Route path="/reports" element={<AdminRoute><ReportsPage /></AdminRoute>} />
 
             <Route path="/admin/games" element={<AdminRoute><AdminGamesPage /></AdminRoute>} />
-            <Route path="/admin/categories" element={<AdminRoute><AdminCategoriesPage /></AdminRoute>} />
             <Route path="/admin/companies" element={<AdminRoute><AdminCompanyPage /></AdminRoute>} />
+            <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
+        </ErrorBoundary>
         </CartProvider>
       </AuthProvider>
+      </FontScaleProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

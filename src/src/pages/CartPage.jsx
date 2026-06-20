@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { cartService, gameService } from '../services/api';
 import { useCart } from '../context/CartContext';
 import './Pages.css';
@@ -46,11 +47,26 @@ export default function CartPage() {
     loadCart();
   }, [loadCart]);
 
-  async function handleRemove(fkJogo) {
+  async function handleRemove(item) {
+    const fkJogo = item.fkJogo;
     try {
       await cartService.removeItem(fkJogo);
       setItems((prev) => prev.filter((i) => i.fkJogo !== fkJogo));
       refreshCart();
+      toast(`${item.jogo?.nome || 'Item'} removido do carrinho.`, {
+        action: {
+          label: 'Desfazer',
+          onClick: async () => {
+            try {
+              await cartService.addItem(fkJogo);
+              setItems((prev) => (prev.some((i) => i.fkJogo === fkJogo) ? prev : [...prev, item]));
+              refreshCart();
+            } catch {
+              toast.error('Não foi possível desfazer.');
+            }
+          },
+        },
+      });
     } catch {
       setError('Não foi possível remover o item.');
     }
@@ -95,7 +111,7 @@ export default function CartPage() {
                 <span className="item-price">{formatPrice(item.jogo?.preco)}</span>
                 <button
                   className="btn btn-ghost"
-                  onClick={() => handleRemove(item.fkJogo)}
+                  onClick={() => handleRemove(item)}
                   aria-label={`Remover ${item.jogo?.nome || 'item'} do carrinho`}
                 >
                   ✕

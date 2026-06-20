@@ -1,55 +1,271 @@
-.home-page { padding-bottom: 3rem; }
+.home-page { padding-bottom: 3rem; background: #f5f0fb; min-height: 100vh; }
 
-.home-hero { text-align: center; padding: 3rem 0 2rem; }
-.home-hero-title { font-family: var(--font-main); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; background: linear-gradient(135deg, #fff 40%, var(--purple-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.home-hero-sub { color: var(--text-secondary); margin-top: 0.5rem; font-size: 1.05rem; }
-
-.home-categories { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-.category-chip { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.85rem; transition: all var(--transition); }
-.category-chip:hover, .category-chip.active { background: var(--purple-primary); border-color: var(--purple-primary); color: #fff; }
-
-.home-search-info { color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem; }
-.home-empty { text-align: center; color: var(--text-muted); padding: 3rem; }
-
-.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
-
-.game-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: transform var(--transition), box-shadow var(--transition); }
-.game-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(123,45,255,0.2); }
-
-.game-card-img { position: relative; height: 160px; overflow: hidden; background: var(--bg-secondary); }
-.game-card-cart {
+.home-hero {
+  position: relative;
+  height: 400px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: linear-gradient(135deg, #5a27c8 0%, #f7f1ff 50%, #8e84ff 100%);
+}
+.home-hero-bg {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 50%, rgba(255, 254, 254, 0.3) 0%, transparent 60%),
+    linear-gradient(135deg, #9873e8 0%, #7d26ff 50%, #534AB7 100%);
+}
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(26,10,60,0.98) 30%, rgba(26,10,60,0.2) 100%);
+}
+.home-hero-content {
+  position: relative;
   z-index: 2;
-  width: 2.4rem;
-  height: 2.4rem;
+  padding: 2.5rem 4rem;
+  max-width: 560px;
+}
+.home-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(4px);
+}
+.home-hero-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 800;
+  color: white;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+.home-hero-sub {
+  color: rgba(255,255,255,0.65);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+.home-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  background: white;
+  color: #3B2063;
+  padding: 0.7rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.home-hero-btn:hover {
+  background: #f3edf7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+/* CATEGORIAS */
+.home-cats-section {
+  background: linear-gradient(180deg, #341c7c 0%, #6f06bb 100%);
+  padding: 1.25rem 2rem 1.5rem;
+}
+.home-cats-header { margin-bottom: 1rem; }
+.home-cats-label {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.9rem;
+  border-radius: 999px;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.home-cats-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.home-cats-track {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  flex: 1;
+  padding: 0.25rem 0;
+}
+.home-cats-track::-webkit-scrollbar { display: none; }
+.home-cats-arrow {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: rgb(27, 17, 17);
+  font-size: 1.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: 50%;
   cursor: pointer;
+  transition: background 0.2s;
+  line-height: 1;
+}
+.home-cats-arrow:hover { background: rgba(255,255,255,0.2); }
+.home-cat-chip {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.75rem;
+  padding: 0.6rem 1rem;
+  min-width: 110px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.home-cat-chip:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+.home-cat-chip.active { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); }
+.home-cat-name { color: white; font-size: 0.82rem; font-weight: 600; font-family: 'Montserrat', sans-serif; }
+.home-cat-count { color: rgba(255,255,255,0.5); font-size: 0.7rem; }
+
+/* ===== LINHAS DE JOGOS ===== */
+.home-popular-section { padding: 1.25rem 2rem; }
+.home-popular-header { display: none; }
+.home-row-header { margin-bottom: 0.75rem; padding-left: 0.25rem; }
+.home-row-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #261046;
+}
+.home-popular-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.home-popular-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  flex: 1;
+  padding: 0.75rem 0.25rem;
+}
+.home-popular-track::-webkit-scrollbar { display: none; }
+
+/* ===== CARD ===== */
+.pop-card-link { text-decoration: none; flex-shrink: 0; }
+.pop-card { width: 140px; display: flex; flex-direction: column; gap: 0.5rem; }
+.pop-card-img {
+  width: 140px;
+  height: 185px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
+  box-shadow: 0 4px 12px rgba(83,74,183,0.2);
+}
+.pop-card-link:hover .pop-card-img {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(83,74,183,0.35);
+}
+.pop-card-icon { font-size: 2.5rem; opacity: 0.5; }
+.pop-card-cart {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.6rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.9);
+  color: #534AB7;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.pop-card-img:hover .pop-card-cart { opacity: 1; }
+.pop-card-cart:hover { background: #534AB7; color: white; transform: scale(1.1); }
+.pop-card-cart.added { background: #1f9d55; color: white; opacity: 1; }
+
+/* Favoritar (coração) — aparece no hover, no canto inferior esquerdo */
+.pop-card-fav {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #e0457b;
   font-size: 1.05rem;
   line-height: 1;
-  color: #fff;
-  background: linear-gradient(135deg, var(--purple-primary), var(--purple-hover));
-  box-shadow: 0 4px 12px rgba(123, 45, 255, 0.45);
-  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-.game-card-cart:hover { transform: scale(1.12); box-shadow: 0 6px 18px rgba(123, 45, 255, 0.65); }
-.game-card-cart:active { transform: scale(1.02); }
-.game-card-cart.added {
-  background: linear-gradient(135deg, #1f9d55, #27c06a);
-  box-shadow: 0 4px 12px rgba(31, 157, 85, 0.5);
+.pop-card-img:hover .pop-card-fav { opacity: 1; }
+.pop-card-fav:hover { background: #e0457b; color: #fff; transform: scale(1.1); }
+.pop-card-fav.active { opacity: 1; background: #e0457b; color: #fff; }
+.pop-card-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #261046;
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
 }
-.game-card-img img { width: 100%; height: 100%; object-fit: cover; }
-.game-card-placeholder { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); }
+.pop-card-price {
+  font-size: 0.78rem;
+  color: #534AB7;
+  font-weight: 700;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
 
-.game-card-body { flex: 1; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.game-card-tags { min-height: 1.6rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
-.game-card-title { font-family: var(--font-main); font-size: 0.95rem; font-weight: 600; line-height: 1.3; color: var(--text-primary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
-.game-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: auto; }
-.game-card-price { font-weight: 700; color: var(--purple-light); font-size: 1rem; }
-.game-card-btn { padding: 0.4rem 0.9rem; font-size: 0.8rem; white-space: nowrap; }
-.game-card-buy { width: 100%; margin-top: 0.5rem; justify-content: center; }
+/* UTILS */
+.home-search-info { color: #534AB7; margin: 1rem 0; font-size: 0.9rem; padding: 0 2rem; }
+.home-empty { text-align: center; color: #BAACBC; padding: 3rem; font-family: 'Montserrat', sans-serif; }
+.page-loading { display: flex; align-items: center; justify-content: center; min-height: 200px; }
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .home-hero { height: 300px; }
+  .home-hero-content { padding: 1.5rem; }
+  .home-cats-section, .home-popular-section { padding: 1rem; }
+  .pop-card { width: 115px; }
+  .pop-card-img { width: 115px; height: 155px; }
+}
